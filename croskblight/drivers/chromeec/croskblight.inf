@@ -1,0 +1,80 @@
+;/*++
+;
+;Copyright (c) CoolStar.  All rights reserved.
+;
+;Module Name:
+;    coolstar.inf
+;
+;Abstract:
+;    INF file for installing the CrosKeyboard Backlight Driver
+;
+;
+;--*/
+
+[Version]
+Signature   = "$WINDOWS NT$"
+Class       = HIDClass
+ClassGuid   = {745a17a0-74d3-11d0-b6fe-00a0c90f57da}
+Provider    = CoolStar
+DriverVer=09/04/2016,1.0
+CatalogFile = croskblight.cat
+
+[DestinationDirs]
+DefaultDestDir = 12
+
+; ================= Class section =====================
+
+[ClassInstall32]
+AddReg=CrosKBLight_RegistryAdd
+
+[SourceDisksNames]
+1 = %DiskId1%,,,""
+
+[SourceDisksFiles]
+croskblight.sys  = 1,,
+
+;*****************************************
+; CrosKbLight  Install Section
+;*****************************************
+
+[Manufacturer]
+%StdMfg%=Standard,NTamd64
+
+; Decorated model section take precedence over undecorated 
+; ones on XP and later.
+[Standard.NTamd64]
+%CrosKBLight.DeviceDesc%=CrosKBLight_Device, ACPI\GOOG0002
+
+[CrosKBLight_Device.NT]
+CopyFiles=Drivers_Dir
+
+[CrosKBLight_Device.NT.HW]
+AddReg=CrosKBLight_AddReg
+
+[Drivers_Dir]
+croskblight.sys
+
+[CrosKBLight_AddReg]
+; Set to 1 to connect the first interrupt resource found, 0 to leave disconnected
+HKR,Settings,"ConnectInterrupt",0x00010001,0
+HKR,,"UpperFilters",0x00010000,"mshidkmdf"
+
+;-------------- Service installation
+[CrosKBLight_Device.NT.Services]
+AddService = CrosKBLight,%SPSVCINST_ASSOCSERVICE%, CrosKBLight_Service_Inst
+
+; -------------- CrosKBLight driver install sections
+[CrosKBLight_Service_Inst]
+DisplayName    = %CrosKBLight.SVCDESC%
+ServiceType    = 1               ; SERVICE_KERNEL_DRIVER
+StartType      = 3               ; SERVICE_DEMAND_START 
+ErrorControl   = 1               ; SERVICE_ERROR_NORMAL
+ServiceBinary  = %12%\croskblight.sys
+LoadOrderGroup = Base
+
+[Strings]
+SPSVCINST_ASSOCSERVICE= 0x00000002
+StdMfg                 = "CoolStar"
+DiskId1                = "CrosKBLight Installation Disk #1"
+CrosKBLight.DeviceDesc = "Chromebook Keyboard Backlight"
+CrosKBLight.SVCDESC    = "CrosKBLight Service"
