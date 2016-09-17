@@ -3,11 +3,11 @@
 !include nsProcess.nsh
 
 !define DRIVERNAME "crostrackpad"
-!define VERSION "3.0"
+!define VERSION "3.0.2"
 
 Caption "${DRIVERNAME} installer"
 Name "${DRIVERNAME} ${VERSION}"
-Outfile "${DRIVERNAME}.3.0-installer.exe"
+Outfile "${DRIVERNAME}.3.0.2-installer.exe"
 ManifestSupportedOS "all"
 SpaceTexts "none"
 

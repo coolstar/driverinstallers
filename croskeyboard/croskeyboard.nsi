@@ -3,7 +3,7 @@
 !include nsProcess.nsh
 
 !define DRIVERNAME "croskeyboard"
-!define VERSION "3.5.1"
+!define VERSION "3.5.2"
 
 Caption "${DRIVERNAME} installer"
 Name "${DRIVERNAME} ${VERSION}"
