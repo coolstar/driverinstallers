@@ -6,7 +6,7 @@
 ;    coolstar.inf
 ;
 ;Abstract:
-;    INF file for installing the Atmel MaxTouch Touch Screen Driver
+;    INF file for installing the Cypress v3 Touchpad Driver
 ;
 ;
 ;--*/
@@ -16,8 +16,8 @@ Signature   = "$WINDOWS NT$"
 Class       = HIDClass
 ClassGuid   = {745a17a0-74d3-11d0-b6fe-00a0c90f57da}
 Provider    = CoolStar
-DriverVer=12/14/2016,2.8
-CatalogFile = crostouchscreen2.cat
+DriverVer=10/21/2016,4.0
+CatalogFile = crostouchpad.cat
 
 [DestinationDirs]
 DefaultDestDir = 12
@@ -25,56 +25,57 @@ DefaultDestDir = 12
 ; ================= Class section =====================
 
 [ClassInstall32]
-AddReg=CrosTouchScreen_RegistryAdd
+AddReg=CrosTouchpad_RegistryAdd
 
 [SourceDisksNames]
 1 = %DiskId1%,,,""
 
 [SourceDisksFiles]
-crostouchscreen2.sys  = 1,,
+crostouchpad.sys  = 1,,
 
 ;*****************************************
-; CrosTouchScreen  Install Section
+; CrosTouchpad  Install Section
 ;*****************************************
 
 [Manufacturer]
-%StdMfg%=Standard,NTAMD64
+%StdMfg%=Standard,NTamd64
 
 ; Decorated model section take precedence over undecorated 
 ; ones on XP and later.
-[Standard.NTAMD64]
-%CrosTouchScreen.DeviceDesc%=CrosTouchScreen_Device, ACPI\ATML0001
+[Standard.NTamd64]
+%CrosTouchpad.DeviceDesc%=CrosTouchpad_Device, PCI\VEN_8086&DEV_1E22&SUBSYS_04B418D1
+%CrosTouchpad.DeviceDesc%=CrosTouchpad_Device, PCI\VEN_8086&DEV_1C22&SUBSYS_04B418D1
 
-[CrosTouchScreen_Device.NT]
+[CrosTouchpad_Device.NT]
 CopyFiles=Drivers_Dir
 
-[CrosTouchScreen_Device.NT.HW]
-AddReg=CrosTouchScreen_AddReg
+[CrosTouchpad_Device.NT.HW]
+AddReg=CrosTouchpad_AddReg
 
 [Drivers_Dir]
-crostouchscreen2.sys
+crostouchpad.sys
 
-[CrosTouchScreen_AddReg]
+[CrosTouchpad_AddReg]
 ; Set to 1 to connect the first interrupt resource found, 0 to leave disconnected
 HKR,Settings,"ConnectInterrupt",0x00010001,0
 HKR,,"UpperFilters",0x00010000,"mshidkmdf"
 
 ;-------------- Service installation
-[CrosTouchScreen_Device.NT.Services]
-AddService = CrosTouchScreen,%SPSVCINST_ASSOCSERVICE%, CrosTouchScreen_Service_Inst
+[CrosTouchpad_Device.NT.Services]
+AddService = CrosTouchpad,%SPSVCINST_ASSOCSERVICE%, CrosTouchpad_Service_Inst
 
-; -------------- CrosTouchScreen driver install sections
-[CrosTouchScreen_Service_Inst]
-DisplayName    = %CrosTouchScreen.SVCDESC%
+; -------------- CrosTouchpad driver install sections
+[CrosTouchpad_Service_Inst]
+DisplayName    = %CrosTouchpad.SVCDESC%
 ServiceType    = 1               ; SERVICE_KERNEL_DRIVER
 StartType      = 3               ; SERVICE_DEMAND_START 
 ErrorControl   = 1               ; SERVICE_ERROR_NORMAL
-ServiceBinary  = %12%\crostouchscreen2.sys
+ServiceBinary  = %12%\crostouchpad.sys
 LoadOrderGroup = Base
 
 [Strings]
 SPSVCINST_ASSOCSERVICE= 0x00000002
 StdMfg                 = "CoolStar"
-DiskId1                = "CrosTouchScreen Installation Disk #1"
-CrosTouchScreen.DeviceDesc = "Chromebook Atmel MaxTouch Touch Screen"
-CrosTouchScreen.SVCDESC    = "CrosTouchScreen Service"
+DiskId1                = "CrosTouchpad Installation Disk #1"
+CrosTouchpad.DeviceDesc = "Chromebook Cypress v3 SMBus Touchpad"
+CrosTouchpad.SVCDESC    = "CrosTouchpad Service"
