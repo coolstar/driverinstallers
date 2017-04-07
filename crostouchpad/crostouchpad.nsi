@@ -52,6 +52,6 @@ Section "Atmel MaxTouch I2C Touchpad"
   ExecWait '"$dpinst" /sw /f /path "$INSTDIR\drivers\atmel"'
 SectionEnd
 
-Section "Synaptics I2C Touchpad (Beta)"
+Section "Synaptics I2C Touchpad"
   ExecWait '"$dpinst" /sw /f /path "$INSTDIR\drivers\synaptics"'
 SectionEnd

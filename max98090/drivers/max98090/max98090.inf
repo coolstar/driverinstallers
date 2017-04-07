@@ -1,0 +1,79 @@
+;/*++
+;
+;Copyright (c) CoolStar.  All rights reserved.
+;
+;Module Name:
+;    max98090.inf
+;
+;Abstract:
+;    INF file for installing the Maxim 98090 Driver
+;
+;
+;--*/
+
+[Version]
+Signature   = "$WINDOWS NT$"
+Class       = Media
+ClassGuid   = {4d36e96c-e325-11ce-bfc1-08002be10318}
+Provider    = CoolStar
+DriverVer=03/28/2017,1.0.1
+CatalogFile = max98090.cat
+
+[DestinationDirs]
+DefaultDestDir = 12
+
+; ================= Class section =====================
+
+[ClassInstall32]
+AddReg=Max98090_RegistryAdd
+
+[SourceDisksNames]
+1 = %DiskId1%,,,""
+
+[SourceDisksFiles]
+max98090.sys  = 1,,
+
+;*****************************************
+; Max98090  Install Section
+;*****************************************
+
+[Manufacturer]
+%StdMfg%=Standard,NTamd64
+
+; Decorated model section take precedence over undecorated 
+; ones on XP and later.
+[Standard.NTamd64]
+%Max98090.DeviceDesc%=Max98090_Device, ACPI\193C9890
+
+[Max98090_Device.NT]
+CopyFiles=Drivers_Dir
+
+[Max98090_Device.NT.HW]
+AddReg=Max98090_AddReg
+
+[Drivers_Dir]
+max98090.sys
+
+[Max98090_AddReg]
+; Set to 1 to connect the first interrupt resource found, 0 to leave disconnected
+HKR,Settings,"ConnectInterrupt",0x00010001,0
+
+;-------------- Service installation
+[Max98090_Device.NT.Services]
+AddService = Max98090,%SPSVCINST_ASSOCSERVICE%, Max98090_Service_Inst
+
+; -------------- Max98090 driver install sections
+[Max98090_Service_Inst]
+DisplayName    = %Max98090.SVCDESC%
+ServiceType    = 1               ; SERVICE_KERNEL_DRIVER
+StartType      = 3               ; SERVICE_DEMAND_START 
+ErrorControl   = 1               ; SERVICE_ERROR_NORMAL
+ServiceBinary  = %12%\max98090.sys
+LoadOrderGroup = Base
+
+[Strings]
+SPSVCINST_ASSOCSERVICE= 0x00000002
+StdMfg                 = "CoolStar"
+DiskId1                = "Maxim 98090 Installation Disk #1"
+Max98090.DeviceDesc = "Maxim 98090 I2S Audio"
+Max98090.SVCDESC    = "Max98090 Service"
