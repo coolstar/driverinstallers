@@ -16,7 +16,7 @@ Signature   = "$WINDOWS NT$"
 Class       = HIDClass
 ClassGuid   = {745a17a0-74d3-11d0-b6fe-00a0c90f57da}
 Provider    = CoolStar
-DriverVer=11/26/2016,4.0
+DriverVer=08/03/2017,4.1
 CatalogFile = crostouchpad.cat
 
 [DestinationDirs]
