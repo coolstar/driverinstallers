@@ -3,7 +3,7 @@
 !include nsProcess.nsh
 
 !define DRIVERNAME "max98090"
-!define VERSION "1.0.3"
+!define VERSION "1.0.4"
 
 Caption "${DRIVERNAME} installer"
 Name "${DRIVERNAME} ${VERSION}"

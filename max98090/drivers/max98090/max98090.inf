@@ -16,16 +16,14 @@ Signature   = "$WINDOWS NT$"
 Class       = Media
 ClassGuid   = {4d36e96c-e325-11ce-bfc1-08002be10318}
 Provider    = CoolStar
-DriverVer=08/03/2017,1.0.3
+DriverVer = 11/15/2021,1.0.4.0
 CatalogFile = max98090.cat
+PnpLockdown = 1
 
 [DestinationDirs]
 DefaultDestDir = 12
 
 ; ================= Class section =====================
-
-[ClassInstall32]
-AddReg=Max98090_RegistryAdd
 
 [SourceDisksNames]
 1 = %DiskId1%,,,""

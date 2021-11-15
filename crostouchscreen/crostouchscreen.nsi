@@ -3,7 +3,7 @@
 !include nsProcess.nsh
 
 !define DRIVERNAME "crostouchscreen"
-!define VERSION "2.9"
+!define VERSION "2.9.1"
 
 Caption "${DRIVERNAME} installer"
 Name "${DRIVERNAME} ${VERSION}"
@@ -36,6 +36,6 @@ Section
   StrCpy $dpinst "$INSTDIR\drivers\dpinst.exe"
 SectionEnd
 
-Section "Touchscreen Driver for C720P/Pixel 2"
-  ExecWait '"$dpinst" /sw /path "$INSTDIR\Drivers\c720p"'
+Section "Atmel MaxTouch Touchscreen"
+  ExecWait '"$dpinst" /sw /path "$INSTDIR\Drivers\atmel"'
 SectionEnd
