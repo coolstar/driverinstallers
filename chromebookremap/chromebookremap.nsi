@@ -3,7 +3,7 @@
 !include nsProcess.nsh
 
 !define DRIVERNAME "chromebookremap"
-!define VERSION "1.0.1"
+!define VERSION "1.0.2"
 
 Caption "${DRIVERNAME} installer"
 Name "${DRIVERNAME} ${VERSION}"

@@ -45,32 +45,33 @@ Menu, Tray, Tip, Chromebook Keyboard
 ; --- brightness ---
 
 class BrightnessSetter {
-	; qwerty12 - 15/01/17
-	static _WM_POWERBROADCAST := 0x218, _osdHwnd := 0
+	; qwerty12 - 27/05/17
+	; https://github.com/qwerty12/AutoHotkeyScripts/tree/master/LaptopBrightnessSetter
+	static _WM_POWERBROADCAST := 0x218, _osdHwnd := 0, hPowrprofMod := DllCall("LoadLibrary", "Str", "powrprof.dll", "Ptr") 
 
 	__New() {
 		if (BrightnessSetter.IsOnAc(AC))
 			this._AC := AC
 		if ((this.pwrAcNotifyHandle := DllCall("RegisterPowerSettingNotification", "Ptr", A_ScriptHwnd, "Ptr", BrightnessSetter._GUID_ACDC_POWER_SOURCE(), "UInt", DEVICE_NOTIFY_WINDOW_HANDLE := 0x00000000, "Ptr"))) ; Sadly the callback passed to *PowerSettingRegister*Notification runs on a new threadl
-			OnMessage(this._WM_POWERBROADCAST, (this.pwrBroadcastFunc := ObjBindMethod(this, "_On_WM_POWERBROADCAST")))
+			OnMessage(this._WM_POWERBROADCAST, ((this.pwrBroadcastFunc := ObjBindMethod(this, "_On_WM_POWERBROADCAST"))))
 	}
 
 	__Delete() {
 		if (this.pwrAcNotifyHandle) {
 			OnMessage(BrightnessSetter._WM_POWERBROADCAST, this.pwrBroadcastFunc, 0)
-			DllCall("UnregisterPowerSettingNotification", "Ptr", this.pwrAcNotifyHandle)
-			this.pwrBroadcastFunc := ""
-			this.pwrAcNotifyHandle := 0
+			,DllCall("UnregisterPowerSettingNotification", "Ptr", this.pwrAcNotifyHandle)
+			,this.pwrAcNotifyHandle := 0
+			,this.pwrBroadcastFunc := ""
 		}
 	}
 
-	SetBrightness(increment, jump := False, showOSD := True, autoDcOrAc := -1, forceDifferentScheme := 0)
+	SetBrightness(increment, jump := False, showOSD := True, autoDcOrAc := -1, ptrAnotherScheme := 0)
 	{
-		static PowerGetActiveScheme := DllCall("GetProcAddress", "Ptr", DllCall("GetModuleHandle", "Str", "powrprof.dll", "Ptr"), "AStr", "PowerGetActiveScheme", "Ptr")
-		static PowerSetActiveScheme := DllCall("GetProcAddress", "Ptr", DllCall("GetModuleHandle", "Str", "powrprof.dll", "Ptr"), "AStr", "PowerSetActiveScheme", "Ptr")
-		static PowerWriteACValueIndex := DllCall("GetProcAddress", "Ptr", DllCall("GetModuleHandle", "Str", "powrprof.dll", "Ptr"), "AStr", "PowerWriteACValueIndex", "Ptr")
-		static PowerWriteDCValueIndex := DllCall("GetProcAddress", "Ptr", DllCall("GetModuleHandle", "Str", "powrprof.dll", "Ptr"), "AStr", "PowerWriteDCValueIndex", "Ptr")
-		static PowerApplySettingChanges := DllCall("GetProcAddress", "Ptr", DllCall("GetModuleHandle", "Str", "powrprof.dll", "Ptr"), "AStr", "PowerApplySettingChanges", "Ptr")
+		static PowerGetActiveScheme := DllCall("GetProcAddress", "Ptr", BrightnessSetter.hPowrprofMod, "AStr", "PowerGetActiveScheme", "Ptr")
+			  ,PowerSetActiveScheme := DllCall("GetProcAddress", "Ptr", BrightnessSetter.hPowrprofMod, "AStr", "PowerSetActiveScheme", "Ptr")
+			  ,PowerWriteACValueIndex := DllCall("GetProcAddress", "Ptr", BrightnessSetter.hPowrprofMod, "AStr", "PowerWriteACValueIndex", "Ptr")
+			  ,PowerWriteDCValueIndex := DllCall("GetProcAddress", "Ptr", BrightnessSetter.hPowrprofMod, "AStr", "PowerWriteDCValueIndex", "Ptr")
+			  ,PowerApplySettingChanges := DllCall("GetProcAddress", "Ptr", BrightnessSetter.hPowrprofMod, "AStr", "PowerApplySettingChanges", "Ptr")
 
 		if (increment == 0 && !jump) {
 			if (showOSD)
@@ -78,23 +79,25 @@ class BrightnessSetter {
 			return
 		}
 
-		if (!forceDifferentScheme ? DllCall(PowerGetActiveScheme, "Ptr", 0, "Ptr*", currSchemeGuid, "UInt") == 0 : DllCall("powrprof\PowerDuplicateScheme", "Ptr", 0, "Ptr", forceDifferentScheme, "Ptr*", currSchemeGuid, "UInt") == 0) {
+		if (!ptrAnotherScheme ? DllCall(PowerGetActiveScheme, "Ptr", 0, "Ptr*", currSchemeGuid, "UInt") == 0 : DllCall("powrprof\PowerDuplicateScheme", "Ptr", 0, "Ptr", ptrAnotherScheme, "Ptr*", currSchemeGuid, "UInt") == 0) {
 			if (autoDcOrAc == -1) {
 				if (this != BrightnessSetter) {
 					AC := this._AC
 				} else {
-					if (!BrightnessSetter.IsOnAc(AC))
+					if (!BrightnessSetter.IsOnAc(AC)) {
+						DllCall("LocalFree", "Ptr", currSchemeGuid, "Ptr")
 						return
+					}
 				}
 			} else {
 				AC := !!autoDcOrAc
 			}
-			
+
 			currBrightness := 0
 			if (jump || BrightnessSetter._GetCurrentBrightness(currSchemeGuid, AC, currBrightness)) {
-				maxBrightness := BrightnessSetter.GetMaxBrightness()
-				minBrightness := BrightnessSetter.GetMinBrightness()
-				
+				 maxBrightness := BrightnessSetter.GetMaxBrightness()
+				,minBrightness := BrightnessSetter.GetMinBrightness()
+
 				if (jump || !((currBrightness == maxBrightness && increment > 0) || (currBrightness == minBrightness && increment < minBrightness))) {
 					if (currBrightness + increment > maxBrightness)
 						increment := maxBrightness
@@ -119,11 +122,15 @@ class BrightnessSetter {
 
 	IsOnAc(ByRef acStatus)
 	{
-		VarSetCapacity(SystemPowerStatus, 12)
+		static SystemPowerStatus
+		if (!VarSetCapacity(SystemPowerStatus))
+			VarSetCapacity(SystemPowerStatus, 12)
+
 		if (DllCall("GetSystemPowerStatus", "Ptr", &SystemPowerStatus)) {
 			acStatus := NumGet(SystemPowerStatus, 0, "UChar") == 1
 			return True
 		}
+
 		return False
 	}
 	
@@ -154,15 +161,15 @@ class BrightnessSetter {
 
 	_GetCurrentBrightness(schemeGuid, AC, ByRef currBrightness)
 	{
-		static PowerReadACValueIndex := DllCall("GetProcAddress", "Ptr", DllCall("GetModuleHandle", "Str", "powrprof.dll", "Ptr"), "AStr", "PowerReadACValueIndex", "Ptr")
-		static PowerReadDCValueIndex := DllCall("GetProcAddress", "Ptr", DllCall("GetModuleHandle", "Str", "powrprof.dll", "Ptr"), "AStr", "PowerReadDCValueIndex", "Ptr")
+		static PowerReadACValueIndex := DllCall("GetProcAddress", "Ptr", BrightnessSetter.hPowrprofMod, "AStr", "PowerReadACValueIndex", "Ptr")
+			  ,PowerReadDCValueIndex := DllCall("GetProcAddress", "Ptr", BrightnessSetter.hPowrprofMod, "AStr", "PowerReadDCValueIndex", "Ptr")
 		return DllCall(AC ? PowerReadACValueIndex : PowerReadDCValueIndex, "Ptr", 0, "Ptr", schemeGuid, "Ptr", BrightnessSetter._GUID_VIDEO_SUBGROUP(), "Ptr", BrightnessSetter._GUID_DEVICE_POWER_POLICY_VIDEO_BRIGHTNESS(), "UInt*", currBrightness, "UInt") == 0
 	}
 	
 	_ShowBrightnessOSD()
 	{
 		static PostMessagePtr := DllCall("GetProcAddress", "Ptr", DllCall("GetModuleHandle", "Str", "user32.dll", "Ptr"), "AStr", A_IsUnicode ? "PostMessageW" : "PostMessageA", "Ptr")
-		static WM_SHELLHOOK := DllCall("RegisterWindowMessage", "Str", "SHELLHOOK", "UInt")
+			  ,WM_SHELLHOOK := DllCall("RegisterWindowMessage", "Str", "SHELLHOOK", "UInt")
 		if A_OSVersion in WIN_VISTA,WIN_7
 			return
 		BrightnessSetter._RealiseOSDWindowIfNeeded()
@@ -174,35 +181,23 @@ class BrightnessSetter {
 	_RealiseOSDWindowIfNeeded()
 	{
 		static IsWindow := DllCall("GetProcAddress", "Ptr", DllCall("GetModuleHandle", "Str", "user32.dll", "Ptr"), "AStr", "IsWindow", "Ptr")
-		if (BrightnessSetter._osdHwnd && DllCall(IsWindow, "Ptr", BrightnessSetter._osdHwnd))
-			return
-		BrightnessSetter._FindAndSetOSDWindow()
-		if (BrightnessSetter._osdHwnd) {
-			return
-		} else {
-			succeeded := False
+		if (!DllCall(IsWindow, "Ptr", BrightnessSetter._osdHwnd) && !BrightnessSetter._FindAndSetOSDWindow()) {
 			BrightnessSetter._osdHwnd := 0
-			try shellProvider := ComObjCreate("{C2F03A33-21F5-47FA-B4BB-156362A2F239}", "{00000000-0000-0000-C000-000000000046}")
-			if (shellProvider) {
-				try flyoutDisp := ComObjQuery(shellProvider, "{41f9d2fb-7834-4ab6-8b1b-73e74064b465}", "{41f9d2fb-7834-4ab6-8b1b-73e74064b465}")
-				if (flyoutDisp) {
-					if ((succeeded := DllCall(NumGet(NumGet(flyoutDisp+0)+3*A_PtrSize), "Ptr", flyoutDisp, "Int", 0, "UInt", 0) == 0))
-						BrightnessSetter._FindAndSetOSDWindow()
-					ObjRelease(flyoutDisp)
+			try if ((shellProvider := ComObjCreate("{C2F03A33-21F5-47FA-B4BB-156362A2F239}", "{00000000-0000-0000-C000-000000000046}"))) {
+				try if ((flyoutDisp := ComObjQuery(shellProvider, "{41f9d2fb-7834-4ab6-8b1b-73e74064b465}", "{41f9d2fb-7834-4ab6-8b1b-73e74064b465}"))) {
+					 DllCall(NumGet(NumGet(flyoutDisp+0)+3*A_PtrSize), "Ptr", flyoutDisp, "Int", 0, "UInt", 0)
+					,ObjRelease(flyoutDisp)
 				}
 				ObjRelease(shellProvider)
+				if (BrightnessSetter._FindAndSetOSDWindow())
+					return
 			}
-			if (!succeeded) {
-				; who knows if the SID & IID above will work for future versions of Windows 10. Fall back to this if needs must
-				Loop 5
-				{
-					Loop 2
-						SendEvent {Volume_Mute}
-					BrightnessSetter._FindAndSetOSDWindow()
-					if (BrightnessSetter._osdHwnd)
-						break
-					Sleep 100
-				}
+			; who knows if the SID & IID above will work for future versions of Windows 10 (or Windows 8). Fall back to this if needs must
+			Loop 2 {
+				SendEvent {Volume_Mute 2}
+				if (BrightnessSetter._FindAndSetOSDWindow())
+					return
+				Sleep 100
 			}
 		}
 	}
@@ -210,7 +205,7 @@ class BrightnessSetter {
 	_FindAndSetOSDWindow()
 	{
 		static FindWindow := DllCall("GetProcAddress", "Ptr", DllCall("GetModuleHandle", "Str", "user32.dll", "Ptr"), "AStr", A_IsUnicode ? "FindWindowW" : "FindWindowA", "Ptr")
-		BrightnessSetter._osdHwnd := DllCall(FindWindow, "Str", "NativeHWNDHost", "Str", "", "Ptr")
+		return !!((BrightnessSetter._osdHwnd := DllCall(FindWindow, "Str", "NativeHWNDHost", "Str", "", "Ptr")))
 	}
 
 	_On_WM_POWERBROADCAST(wParam, lParam)
@@ -226,7 +221,7 @@ class BrightnessSetter {
 	{
 		static GUID_VIDEO_SUBGROUP__
 		if (!VarSetCapacity(GUID_VIDEO_SUBGROUP__)) {
-			VarSetCapacity(GUID_VIDEO_SUBGROUP__, 16)
+			 VarSetCapacity(GUID_VIDEO_SUBGROUP__, 16)
 			,NumPut(0x7516B95F, GUID_VIDEO_SUBGROUP__, 0, "UInt"), NumPut(0x4464F776, GUID_VIDEO_SUBGROUP__, 4, "UInt")
 			,NumPut(0x1606538C, GUID_VIDEO_SUBGROUP__, 8, "UInt"), NumPut(0x99CC407F, GUID_VIDEO_SUBGROUP__, 12, "UInt")
 		}
@@ -237,9 +232,9 @@ class BrightnessSetter {
 	{
 		static GUID_DEVICE_POWER_POLICY_VIDEO_BRIGHTNESS__
 		if (!VarSetCapacity(GUID_DEVICE_POWER_POLICY_VIDEO_BRIGHTNESS__)) {
-			VarSetCapacity(GUID_DEVICE_POWER_POLICY_VIDEO_BRIGHTNESS__, 16)
-			NumPut(0xADED5E82, GUID_DEVICE_POWER_POLICY_VIDEO_BRIGHTNESS__, 0, "UInt"), NumPut(0x4619B909, GUID_DEVICE_POWER_POLICY_VIDEO_BRIGHTNESS__, 4, "UInt")
-		   ,NumPut(0xD7F54999, GUID_DEVICE_POWER_POLICY_VIDEO_BRIGHTNESS__, 8, "UInt"), NumPut(0xCB0BAC1D, GUID_DEVICE_POWER_POLICY_VIDEO_BRIGHTNESS__, 12, "UInt")
+			 VarSetCapacity(GUID_DEVICE_POWER_POLICY_VIDEO_BRIGHTNESS__, 16)
+			,NumPut(0xADED5E82, GUID_DEVICE_POWER_POLICY_VIDEO_BRIGHTNESS__, 0, "UInt"), NumPut(0x4619B909, GUID_DEVICE_POWER_POLICY_VIDEO_BRIGHTNESS__, 4, "UInt")
+			,NumPut(0xD7F54999, GUID_DEVICE_POWER_POLICY_VIDEO_BRIGHTNESS__, 8, "UInt"), NumPut(0xCB0BAC1D, GUID_DEVICE_POWER_POLICY_VIDEO_BRIGHTNESS__, 12, "UInt")
 		}
 		return &GUID_DEVICE_POWER_POLICY_VIDEO_BRIGHTNESS__
 	}
@@ -248,12 +243,13 @@ class BrightnessSetter {
 	{
 		static GUID_ACDC_POWER_SOURCE_
 		if (!VarSetCapacity(GUID_ACDC_POWER_SOURCE_)) {
-			VarSetCapacity(GUID_ACDC_POWER_SOURCE_, 16)
-			NumPut(0x5D3E9A59, GUID_ACDC_POWER_SOURCE_, 0, "UInt"), NumPut(0x4B00E9D5, GUID_ACDC_POWER_SOURCE_, 4, "UInt")
-		   ,NumPut(0x34FFBDA6, GUID_ACDC_POWER_SOURCE_, 8, "UInt"), NumPut(0x486551FF, GUID_ACDC_POWER_SOURCE_, 12, "UInt")
+			 VarSetCapacity(GUID_ACDC_POWER_SOURCE_, 16)
+			,NumPut(0x5D3E9A59, GUID_ACDC_POWER_SOURCE_, 0, "UInt"), NumPut(0x4B00E9D5, GUID_ACDC_POWER_SOURCE_, 4, "UInt")
+			,NumPut(0x34FFBDA6, GUID_ACDC_POWER_SOURCE_, 8, "UInt"), NumPut(0x486551FF, GUID_ACDC_POWER_SOURCE_, 12, "UInt")
 		}
 		return &GUID_ACDC_POWER_SOURCE_
 	}
+
 }
 
 ; ----------
