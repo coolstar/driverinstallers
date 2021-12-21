@@ -3,7 +3,7 @@
 !include nsProcess.nsh
 
 !define DRIVERNAME "crostouchscreen"
-!define VERSION "2.9.1"
+!define VERSION "2.9.2"
 
 Caption "${DRIVERNAME} installer"
 Name "${DRIVERNAME} ${VERSION}"
@@ -38,4 +38,8 @@ SectionEnd
 
 Section "Atmel MaxTouch Touchscreen"
   ExecWait '"$dpinst" /sw /path "$INSTDIR\Drivers\atmel"'
+SectionEnd
+
+Section "Melfas Touchscreen"
+  ExecWait '"$dpinst" /sw /path "$INSTDIR\Drivers\melfas"'
 SectionEnd
