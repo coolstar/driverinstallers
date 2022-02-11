@@ -40,6 +40,10 @@ Section "Atmel MaxTouch Touchscreen"
   ExecWait '"$dpinst" /sw /path "$INSTDIR\Drivers\atmel"'
 SectionEnd
 
+Section "Elan Touchscreen"
+  ExecWait '"$dpinst" /sw /path "$INSTDIR\Drivers\elan"'
+SectionEnd
+
 Section "Melfas Touchscreen"
   ExecWait '"$dpinst" /sw /path "$INSTDIR\Drivers\melfas"'
 SectionEnd

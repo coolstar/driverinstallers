@@ -1,0 +1,78 @@
+;/*++
+;
+;Copyright (c) CoolStar.  All rights reserved.
+;
+;Module Name:
+;    coolstar.inf
+;
+;Abstract:
+;    INF file for installing the Elan Touch Screen Driver
+;
+;
+;--*/
+
+[Version]
+Signature   = "$WINDOWS NT$"
+Class       = HIDClass
+ClassGuid   = {745a17a0-74d3-11d0-b6fe-00a0c90f57da}
+Provider    = CoolStar
+DriverVer = 12/21/2021,2.9.2.0
+CatalogFile = crostouchscreen2.cat
+PnpLockdown = 1
+
+[DestinationDirs]
+DefaultDestDir = 12
+
+; ================= Class section =====================
+
+[SourceDisksNames]
+1 = %DiskId1%,,,""
+
+[SourceDisksFiles]
+crostouchscreen2.sys  = 1,,
+
+;*****************************************
+; CrosTouchScreen  Install Section
+;*****************************************
+
+[Manufacturer]
+%StdMfg%=Standard,NTAMD64
+
+; Decorated model section take precedence over undecorated 
+; ones on XP and later.
+[Standard.NTAMD64]
+%CrosTouchScreen.DeviceDesc%=CrosTouchScreen_Device, ACPI\ELAN0001
+
+[CrosTouchScreen_Device.NT]
+CopyFiles=Drivers_Dir
+
+[CrosTouchScreen_Device.NT.HW]
+AddReg=CrosTouchScreen_AddReg
+
+[Drivers_Dir]
+crostouchscreen2.sys
+
+[CrosTouchScreen_AddReg]
+; Set to 1 to connect the first interrupt resource found, 0 to leave disconnected
+HKR,Settings,"ConnectInterrupt",0x00010001,0
+HKR,,"UpperFilters",0x00010000,"mshidkmdf"
+
+;-------------- Service installation
+[CrosTouchScreen_Device.NT.Services]
+AddService = CrosTouchScreen,%SPSVCINST_ASSOCSERVICE%, CrosTouchScreen_Service_Inst
+
+; -------------- CrosTouchScreen driver install sections
+[CrosTouchScreen_Service_Inst]
+DisplayName    = %CrosTouchScreen.SVCDESC%
+ServiceType    = 1               ; SERVICE_KERNEL_DRIVER
+StartType      = 3               ; SERVICE_DEMAND_START 
+ErrorControl   = 1               ; SERVICE_ERROR_NORMAL
+ServiceBinary  = %12%\crostouchscreen2.sys
+LoadOrderGroup = Base
+
+[Strings]
+SPSVCINST_ASSOCSERVICE= 0x00000002
+StdMfg                 = "CoolStar"
+DiskId1                = "CrosTouchScreen Installation Disk #1"
+CrosTouchScreen.DeviceDesc = "Chromebook Elan Touch Screen"
+CrosTouchScreen.SVCDESC    = "CrosTouchScreen Service"
