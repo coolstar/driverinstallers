@@ -1,0 +1,78 @@
+;/*++
+;
+;Copyright (c) CoolStar.  All rights reserved.
+;
+;Module Name:
+;    coolstar.inf
+;
+;Abstract:
+;    INF file for installing the TS3A227E Jack Detect Driver 
+;
+;
+;--*/
+
+[Version]
+Signature   = "$WINDOWS NT$"
+Class       = Media
+ClassGuid   = {4d36e96c-e325-11ce-bfc1-08002be10318}
+Provider    = CoolStar
+DriverVer = 12/21/2021,1.0.0.0
+CatalogFile = ts3a227e.cat
+PnpLockdown=1
+
+[DestinationDirs]
+DefaultDestDir = 12
+
+; ================= Class section =====================
+
+[SourceDisksNames]
+1 = %DiskId1%,,,""
+
+[SourceDisksFiles]
+ts3a227e.sys  = 1,,
+
+;*****************************************
+; ts3a227e  Install Section
+;*****************************************
+
+[Manufacturer]
+%StdMfg%=Standard,NTAMD64
+
+; Decorated model section take precedence over undecorated 
+; ones on XP and later.
+[Standard.NTAMD64]
+%ts3a227e.DeviceDesc%=Ts3a227e_Device, ACPI\104C227E
+
+[Ts3a227e_Device.NT]
+CopyFiles=Drivers_Dir
+
+[Ts3a227e_Device.NT.HW]
+AddReg=Ts3a227e_AddReg
+
+[Drivers_Dir]
+ts3a227e.sys
+
+[Ts3a227e_AddReg]
+; Set to 1 to connect the first interrupt resource found, 0 to leave disconnected
+HKR,Settings,"ConnectInterrupt",0x00010001,0
+HKR,,"UpperFilters",0x00010000,"mshidkmdf"
+
+;-------------- Service installation
+[Ts3a227e_Device.NT.Services]
+AddService = ts3a227e,%SPSVCINST_ASSOCSERVICE%, Ts3a227e_Service_Inst
+
+; -------------- ts3a227e driver install sections
+[Ts3a227e_Service_Inst]
+DisplayName    = %ts3a227e.SVCDESC%
+ServiceType    = 1               ; SERVICE_KERNEL_DRIVER
+StartType      = 3               ; SERVICE_DEMAND_START 
+ErrorControl   = 1               ; SERVICE_ERROR_NORMAL
+ServiceBinary  = %12%\ts3a227e.sys
+LoadOrderGroup = Base
+
+[Strings]
+SPSVCINST_ASSOCSERVICE= 0x00000002
+StdMfg                 = "CoolStar"
+DiskId1                = "TS3A227E Installation Disk #1"
+ts3a227e.DeviceDesc = "TI TS3A227E Jack Detect Switch"
+ts3a227e.SVCDESC    = "TS3A227E Service"
