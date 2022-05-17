@@ -3,7 +3,7 @@
 !include nsProcess.nsh
 
 !define DRIVERNAME "crostouchpad"
-!define VERSION "4.1.2"
+!define VERSION "4.1.3"
 
 Caption "${DRIVERNAME} installer"
 Name "${DRIVERNAME} ${VERSION}"
@@ -38,6 +38,7 @@ SectionEnd
 
 Section "Cypress SMBus Touchpad (Acer C710)"
   ExecWait '"$dpinst" /sw /f /path "$INSTDIR\drivers\cypresssmb"'
+  ExecWait '"$dpinst" /sw /f /path "$INSTDIR\drivers\cypressint"'
 SectionEnd
 
 Section "Cypress Gen3 I2C Touchpad"
