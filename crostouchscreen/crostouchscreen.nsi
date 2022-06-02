@@ -3,7 +3,7 @@
 !include nsProcess.nsh
 
 !define DRIVERNAME "crostouchscreen"
-!define VERSION "2.9.2"
+!define VERSION "2.9.3"
 
 Caption "${DRIVERNAME} installer"
 Name "${DRIVERNAME} ${VERSION}"
