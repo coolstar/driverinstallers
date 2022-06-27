@@ -1,0 +1,77 @@
+;/*++
+;
+;Copyright (c) CoolStar.  All rights reserved.
+;
+;Module Name:
+;    crosecbus.inf
+;
+;Abstract:
+;    INF file for installing the CR50 I2C Driver
+;
+;
+;--*/
+
+[Version]
+Signature   = "$WINDOWS NT$"
+Class       = System
+ClassGuid   = {4d36e97d-e325-11ce-bfc1-08002be10318}
+Provider    = CoolStar
+DriverVer = 06/21/2022,1.0.0.0
+CatalogFile = crosecbus.cat
+PnpLockdown = 1
+
+[DestinationDirs]
+DefaultDestDir = 12
+
+; ================= Class section =====================
+
+[SourceDisksNames]
+1 = %DiskId1%,,,""
+
+[SourceDisksFiles]
+crosecbus.sys  = 1,,
+
+;*****************************************
+; CrosEcBus  Install Section
+;*****************************************
+
+[Manufacturer]
+%StdMfg%=Standard,NTamd64
+
+; Decorated model section take precedence over undecorated 
+; ones on XP and later.
+[Standard.NTamd64]
+%CrosEcBus.DeviceDesc%=CrosEcBus_Device, ACPI\GOOG0004
+
+[CrosEcBus_Device.NT]
+CopyFiles=Drivers_Dir
+
+[CrosEcBus_Device.NT.HW]
+AddReg=CrosEcBus_AddReg
+
+[Drivers_Dir]
+crosecbus.sys
+
+[CrosEcBus_AddReg]
+; Set to 1 to connect the first interrupt resource found, 0 to leave disconnected
+HKR,Settings,"ConnectInterrupt",0x00010001,0
+
+;-------------- Service installation
+[CrosEcBus_Device.NT.Services]
+AddService = CrosEcBus,%SPSVCINST_ASSOCSERVICE%, CrosEcBus_Service_Inst
+
+; -------------- CrosEcBus driver install sections
+[CrosEcBus_Service_Inst]
+DisplayName    = %CrosEcBus.SVCDESC%
+ServiceType    = 1               ; SERVICE_KERNEL_DRIVER
+StartType      = 3               ; SERVICE_DEMAND_START 
+ErrorControl   = 1               ; SERVICE_ERROR_NORMAL
+ServiceBinary  = %12%\crosecbus.sys
+LoadOrderGroup = Base
+
+[Strings]
+SPSVCINST_ASSOCSERVICE= 0x00000002
+StdMfg                 = "CoolStar"
+DiskId1                = "Chrome EC Installation Disk #1"
+CrosEcBus.DeviceDesc = "Chromebook EC Bus"
+CrosEcBus.SVCDESC    = "Chrome EC Service"

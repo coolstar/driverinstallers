@@ -1,0 +1,77 @@
+;/*++
+;
+;Copyright (c) CoolStar.  All rights reserved.
+;
+;Module Name:
+;    croseccodec.inf
+;
+;Abstract:
+;    INF file for installing the CR50 I2C Driver
+;
+;
+;--*/
+
+[Version]
+Signature   = "$WINDOWS NT$"
+Class       = Media
+ClassGuid   = {4d36e96c-e325-11ce-bfc1-08002be10318}
+Provider    = CoolStar
+DriverVer = 06/21/2022,1.0.0.0
+CatalogFile = croseccodec.cat
+PnpLockdown = 1
+
+[DestinationDirs]
+DefaultDestDir = 12
+
+; ================= Class section =====================
+
+[SourceDisksNames]
+1 = %DiskId1%,,,""
+
+[SourceDisksFiles]
+croseccodec.sys  = 1,,
+
+;*****************************************
+; CrosEcCodec  Install Section
+;*****************************************
+
+[Manufacturer]
+%StdMfg%=Standard,NTamd64.10.0...14393
+
+; Decorated model section take precedence over undecorated 
+; ones on XP and later.
+[Standard.NTamd64.10.0...14393]
+%CrosEcCodec.DeviceDesc%=CrosEcCodec_Device, ACPI\GOOG0013
+
+[CrosEcCodec_Device.NT]
+CopyFiles=Drivers_Dir
+
+[CrosEcCodec_Device.NT.HW]
+AddReg=CrosEcCodec_AddReg
+
+[Drivers_Dir]
+croseccodec.sys
+
+[CrosEcCodec_AddReg]
+; Set to 1 to connect the first interrupt resource found, 0 to leave disconnected
+HKR,Settings,"ConnectInterrupt",0x00010001,0
+
+;-------------- Service installation
+[CrosEcCodec_Device.NT.Services]
+AddService = CrosEcCodec,%SPSVCINST_ASSOCSERVICE%, CrosEcCodec_Service_Inst
+
+; -------------- CrosEcCodec driver install sections
+[CrosEcCodec_Service_Inst]
+DisplayName    = %CrosEcCodec.SVCDESC%
+ServiceType    = 1               ; SERVICE_KERNEL_DRIVER
+StartType      = 3               ; SERVICE_DEMAND_START 
+ErrorControl   = 1               ; SERVICE_ERROR_NORMAL
+ServiceBinary  = %12%\croseccodec.sys
+LoadOrderGroup = Base
+
+[Strings]
+SPSVCINST_ASSOCSERVICE= 0x00000002
+StdMfg                 = "CoolStar"
+DiskId1                = "Chrome EC Installation Disk #1"
+CrosEcCodec.DeviceDesc = "Chromebook EC Audio"
+CrosEcCodec.SVCDESC    = "Chrome EC Service"
