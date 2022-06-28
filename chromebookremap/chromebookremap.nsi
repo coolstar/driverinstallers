@@ -3,7 +3,7 @@
 !include nsProcess.nsh
 
 !define DRIVERNAME "chromebookremap"
-!define VERSION "1.0.2"
+!define VERSION "1.0.3"
 
 Caption "${DRIVERNAME} installer"
 Name "${DRIVERNAME} ${VERSION}"
@@ -60,8 +60,10 @@ functionEnd
  
 section "uninstall"
 	${nsProcess::KillProcess} "ChromebookRemap.exe" $R4
+  ${nsProcess::KillProcess} "croskblightclient.exe" $R4
   	delete "$SMPROGRAMS\Startup\chromebookremap.lnk"
 	delete "$INSTDIR\utilities\ChromebookRemap.exe"
+  delete "$INSTDIR\utilities\croskblightclient.exe"
 	rmDir /r $INSTDIR\utilities
 	delete $INSTDIR\uninstall.exe
 	rmDir $INSTDIR

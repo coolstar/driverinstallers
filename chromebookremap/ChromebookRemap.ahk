@@ -298,6 +298,16 @@ BS := new BrightnessSetter()
 	BS.SetBrightness(10)
 	Return
 
+; keyboard brightness down = Ctrl + Alt + F6
+<^<!F6::
+	Run %A_ScriptDir%\croskblightclient.exe - 10
+	Return
+
+; keyboard brightness down = Ctrl + Alt + F7
+<^<!F7::
+	Run %A_ScriptDir%\croskblightclient.exe + 10
+	Return
+
 ; -----
 
 
