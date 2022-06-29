@@ -274,7 +274,7 @@ class KeyboardBacklight {
 			this.CurrentBrightness := this.InternalBrightness
 			this.BrightnessFadeTarget := this.InternalBrightness
 
-			SetTimer, FadeKBLBrightnessStep, 100
+			SetTimer, FadeKBLBrightnessStep, 50
 		}
 	}
 
@@ -328,7 +328,7 @@ class KeyboardBacklight {
 
 	FadeSet(Brightness)
 	{
-		this.BrightnessFadeStep := Abs(this.InternalBrightness - Brightness) / 3 ; do over 3 steps [300 ms]
+		this.BrightnessFadeStep := Abs(this.InternalBrightness - Brightness) / 6 ; do over 6 steps [300 ms]
 		this.BrightnessFadeTarget := Brightness
 
 		BrightnessFadeStep := this.BrightnessFadeStep
