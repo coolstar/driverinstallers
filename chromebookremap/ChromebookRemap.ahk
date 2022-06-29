@@ -254,7 +254,120 @@ class BrightnessSetter {
 
 ; ----------
 
+
+class KeyboardBacklight {
+	HasKeyboardBacklight := false
+	CurrentBrightness := 0 ; brightness that is asked by user (regardless of inactivity, etc)
+	InternalBrightness := 0 ; actual brightness of hardware
+	BrightnessFadeStep := 0 ; the step that should be taken to fade to the target brightness
+	BrightnessFadeTarget := 0 ; target for fading brightness
+
+	__New() {
+		RunWait, %A_ScriptDir%\croskblightclient.exe + 0
+
+		if ErrorLevel = 0
+		{
+			this.HasKeyboardBacklight := true
+
+			RunWait, %A_ScriptDir%\croskblightclient.exe r
+			this.InternalBrightness := ErrorLevel
+			this.CurrentBrightness := this.InternalBrightness
+			this.BrightnessFadeTarget := this.InternalBrightness
+
+			SetTimer, FadeKBLBrightnessStep, 100
+		}
+	}
+
+	InstantlySet(Brightness)
+	{
+		if (Brightness > 100)
+		{
+			Brightness := 100
+		}
+		else if (Brightness < 0)
+		{
+			Brightness := 0
+		}
+		this.InternalBrightness := Brightness
+		Run %A_ScriptDir%\croskblightclient.exe = %Brightness%
+	}
+
+	FadeBrightnessStep()
+	{
+		if (this.InternalBrightness = this.BrightnessFadeTarget)
+		{
+			if A_TimeIdle > 5000
+			{
+				this.FadeSet(0)
+			}
+			else if (this.CurrentBrightness != 0) && (this.InternalBrightness == 0)
+			{
+				this.FadeSet(this.CurrentBrightness)
+			}
+
+			Return
+		}
+
+		DesiredBrightness := this.InternalBrightness
+		BrightnessFadeTarget := this.BrightnessFadeTarget
+		BrightnessFadeStep := this.BrightnessFadeStep
+		if (DesiredBrightness < BrightnessFadeTarget) && (DesiredBrightness + BrightnessFadeStep) > BrightnessFadeTarget
+		{
+			DesiredBrightness := BrightnessFadeTarget
+		} else if (DesiredBrightness > BrightnessFadeTarget) && (DesiredBrightness - BrightnessFadeStep) < BrightnessFadeTarget
+		{
+			DesiredBrightness := BrightnessFadeTarget
+		} else if (DesiredBrightness < BrightnessFadeTarget) {
+			DesiredBrightness := DesiredBrightness + BrightnessFadeStep
+		} else if (DesiredBrightness > BrightnessFadeTarget) {
+			DesiredBrightness := DesiredBrightness - BrightnessFadeStep
+		}
+
+		this.InstantlySet(DesiredBrightness)
+	}
+
+	FadeSet(Brightness)
+	{
+		this.BrightnessFadeStep := Abs(this.InternalBrightness - Brightness) / 3 ; do over 3 steps [300 ms]
+		this.BrightnessFadeTarget := Brightness
+
+		BrightnessFadeStep := this.BrightnessFadeStep
+		BrightnessFadeTarget := this.BrightnessFadeTarget
+	}
+
+	BrightnessInc()
+	{
+		DesiredBrightness := this.CurrentBrightness
+		DesiredBrightness += 10
+		if DesiredBrightness > 100
+		{
+			DesiredBrightness := 100
+		}
+		this.CurrentBrightness := DesiredBrightness
+		this.FadeSet(DesiredBrightness)
+	}
+
+	BrightnessDec()
+	{
+		DesiredBrightness := this.CurrentBrightness
+		DesiredBrightness -= 10
+		if DesiredBrightness < 0
+		{
+			DesiredBrightness := 0
+		}
+		this.CurrentBrightness := DesiredBrightness
+		this.FadeSet(DesiredBrightness)
+	}
+}
+
+; ----------
+
 BS := new BrightnessSetter()
+KBL := new KeyboardBacklight()
+
+FadeKBLBrightnessStep:
+	KBL.FadeBrightnessStep()
+	Return
 
 <^F1::
 	Send {LAlt down}{Left}{LAlt up}
@@ -300,12 +413,12 @@ BS := new BrightnessSetter()
 
 ; keyboard brightness down = Ctrl + Alt + F6
 <^<!F6::
-	Run %A_ScriptDir%\croskblightclient.exe - 10
+	KBL.BrightnessDec()
 	Return
 
-; keyboard brightness down = Ctrl + Alt + F7
+; keyboard brightness up = Ctrl + Alt + F7
 <^<!F7::
-	Run %A_ScriptDir%\croskblightclient.exe + 10
+	KBL.BrightnessInc()
 	Return
 
 ; -----

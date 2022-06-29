@@ -3,7 +3,7 @@
 !include nsProcess.nsh
 
 !define DRIVERNAME "chromebookremap"
-!define VERSION "1.0.3"
+!define VERSION "1.0.4"
 
 Caption "${DRIVERNAME} installer"
 Name "${DRIVERNAME} ${VERSION}"
@@ -33,6 +33,11 @@ Section
   ${nsProcess::KillProcess} "ChromebookRemap.exe" $R4
   File /r "utilities"
   writeUninstaller "$INSTDIR\uninstall.exe"
+
+  WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\chromebookremap" \
+                 "DisplayName" "Chromebook Keyboard Remap"
+  WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\chromebookremap" \
+                 "UninstallString" "$\"$INSTDIR\uninstall.exe$\""
 SectionEnd
 
 Section "Keyboard Remap Utility"
@@ -67,4 +72,6 @@ section "uninstall"
 	rmDir /r $INSTDIR\utilities
 	delete $INSTDIR\uninstall.exe
 	rmDir $INSTDIR
+
+  DeleteRegKey HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\chromebookremap"
 sectionEnd
