@@ -16,7 +16,7 @@ Signature   = "$WINDOWS NT$"
 Class       = Media
 ClassGuid   = {4d36e96c-e325-11ce-bfc1-08002be10318}
 Provider    = CoolStar
-DriverVer = 06/21/2022,1.0.0.0
+DriverVer = 07/05/2022,1.0.0.0
 CatalogFile = croseccodec.cat
 PnpLockdown = 1
 
