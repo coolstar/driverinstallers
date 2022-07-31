@@ -1,0 +1,70 @@
+;/*++
+;
+;Copyright (c) CoolStar.  All rights reserved.
+;
+;Module Name:
+;    coolstar.inf
+;
+;Abstract:
+;    INF file for installing the TS3A227E Jack Detect Driver 
+;
+;
+;--*/
+
+[Version]
+Signature   = "$WINDOWS NT$"
+Class       = Media
+ClassGuid   = {4d36e96c-e325-11ce-bfc1-08002be10318}
+Provider    = CoolStar
+DriverVer = 06/01/2022,1.0.0.0
+CatalogFile = ssm4567.cat
+PnpLockdown=1
+
+[DestinationDirs]
+DefaultDestDir = 12
+
+; ================= Class section =====================
+
+[SourceDisksNames]
+1 = %DiskId1%,,,""
+
+[SourceDisksFiles]
+ssm4567.sys  = 1,,
+
+;*****************************************
+; ssm4567  Install Section
+;*****************************************
+
+[Manufacturer]
+%StdMfg%=Standard,NTAMD64
+
+; Decorated model section take precedence over undecorated 
+; ones on XP and later.
+[Standard.NTAMD64]
+%ssm4567.DeviceDesc%=Ts3a227e_Device, ACPI\INT343B
+
+[Ts3a227e_Device.NT]
+CopyFiles=Drivers_Dir
+
+[Drivers_Dir]
+ssm4567.sys
+
+;-------------- Service installation
+[Ts3a227e_Device.NT.Services]
+AddService = ssm4567,%SPSVCINST_ASSOCSERVICE%, Ts3a227e_Service_Inst
+
+; -------------- ssm4567 driver install sections
+[Ts3a227e_Service_Inst]
+DisplayName    = %ssm4567.SVCDESC%
+ServiceType    = 1               ; SERVICE_KERNEL_DRIVER
+StartType      = 3               ; SERVICE_DEMAND_START 
+ErrorControl   = 1               ; SERVICE_ERROR_NORMAL
+ServiceBinary  = %12%\ssm4567.sys
+LoadOrderGroup = Base
+
+[Strings]
+SPSVCINST_ASSOCSERVICE= 0x00000002
+StdMfg                 = "CoolStar"
+DiskId1                = "SSM4567 Installation Disk #1"
+ssm4567.DeviceDesc = "SSM4567 Amplifier"
+ssm4567.SVCDESC    = "SSM4567 Service"

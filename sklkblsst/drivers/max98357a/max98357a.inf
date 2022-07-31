@@ -1,0 +1,70 @@
+;/*++
+;
+;Copyright (c) CoolStar.  All rights reserved.
+;
+;Module Name:
+;    max98357a.inf
+;
+;Abstract:
+;    INF file for installing the Maxim 98090 Driver
+;
+;
+;--*/
+
+[Version]
+Signature   = "$WINDOWS NT$"
+Class       = Media
+ClassGuid   = {4d36e96c-e325-11ce-bfc1-08002be10318}
+Provider    = CoolStar
+DriverVer = 06/01/2022,1.0.0.0
+CatalogFile = max98357a.cat
+PnpLockdown = 1
+
+[DestinationDirs]
+DefaultDestDir = 12
+
+; ================= Class section =====================
+
+[SourceDisksNames]
+1 = %DiskId1%,,,""
+
+[SourceDisksFiles]
+max98357a.sys  = 1,,
+
+;*****************************************
+; MAX98357A  Install Section
+;*****************************************
+
+[Manufacturer]
+%StdMfg%=Standard,NTamd64
+
+; Decorated model section take precedence over undecorated 
+; ones on XP and later.
+[Standard.NTamd64]
+%MAX98357A.DeviceDesc%=MAX98357A_Device, ACPI\MX98357A
+
+[MAX98357A_Device.NT]
+CopyFiles=Drivers_Dir
+
+[Drivers_Dir]
+max98357a.sys
+
+;-------------- Service installation
+[MAX98357A_Device.NT.Services]
+AddService = MAX98357A,%SPSVCINST_ASSOCSERVICE%, MAX98357A_Service_Inst
+
+; -------------- MAX98357A driver install sections
+[MAX98357A_Service_Inst]
+DisplayName    = %MAX98357A.SVCDESC%
+ServiceType    = 1               ; SERVICE_KERNEL_DRIVER
+StartType      = 3               ; SERVICE_DEMAND_START 
+ErrorControl   = 1               ; SERVICE_ERROR_NORMAL
+ServiceBinary  = %12%\max98357a.sys
+LoadOrderGroup = Base
+
+[Strings]
+SPSVCINST_ASSOCSERVICE= 0x00000002
+StdMfg                 = "CoolStar"
+DiskId1                = "Maxim 98357a Installation Disk #1"
+MAX98357A.DeviceDesc = "Maxim 98357a I2S Amplifier"
+MAX98357A.SVCDESC    = "MAX98357A Service"
