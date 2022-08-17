@@ -1,0 +1,77 @@
+;/*++
+;
+;Copyright (c) CoolStar.  All rights reserved.
+;
+;Module Name:
+;    rt5677i2c.inf
+;
+;Abstract:
+;    INF file for installing the Realtek ALC 5677 Driver
+;
+;
+;--*/
+
+[Version]
+Signature   = "$WINDOWS NT$"
+Class       = Media
+ClassGuid   = {4d36e96c-e325-11ce-bfc1-08002be10318}
+Provider    = CoolStar
+DriverVer = 08/17/2022,1.0.1.0
+CatalogFile = rt5677i2c.cat
+PnpLockdown = 1
+
+[DestinationDirs]
+DefaultDestDir = 12
+
+; ================= Class section =====================
+
+[SourceDisksNames]
+1 = %DiskId1%,,,""
+
+[SourceDisksFiles]
+rt5677i2c.sys  = 1,,
+
+;*****************************************
+; Rt5677I2c  Install Section
+;*****************************************
+
+[Manufacturer]
+%StdMfg%=Standard,NTamd64
+
+; Decorated model section take precedence over undecorated 
+; ones on XP and later.
+[Standard.NTamd64]
+%Rt5677I2c.DeviceDesc%=Rt5677I2c_Device, ACPI\RT5677CE
+
+[Rt5677I2c_Device.NT]
+CopyFiles=Drivers_Dir
+
+[Rt5677I2c_Device.NT.HW]
+AddReg=Rt5677I2c_AddReg
+
+[Drivers_Dir]
+rt5677i2c.sys
+
+[Rt5677I2c_AddReg]
+; Set to 1 to connect the first interrupt resource found, 0 to leave disconnected
+HKR,Settings,"ConnectInterrupt",0x00010001,0
+
+;-------------- Service installation
+[Rt5677I2c_Device.NT.Services]
+AddService = Rt5677I2c,%SPSVCINST_ASSOCSERVICE%, Rt5677I2c_Service_Inst
+
+; -------------- Rt5677I2c driver install sections
+[Rt5677I2c_Service_Inst]
+DisplayName    = %Rt5677I2c.SVCDESC%
+ServiceType    = 1               ; SERVICE_KERNEL_DRIVER
+StartType      = 3               ; SERVICE_DEMAND_START 
+ErrorControl   = 1               ; SERVICE_ERROR_NORMAL
+ServiceBinary  = %12%\rt5677i2c.sys
+LoadOrderGroup = Base
+
+[Strings]
+SPSVCINST_ASSOCSERVICE= 0x00000002
+StdMfg                 = "CoolStar"
+DiskId1                = "Realtek 5677 Installation Disk #1"
+Rt5677I2c.DeviceDesc = "Realtek 5677 I2S Audio"
+Rt5677I2c.SVCDESC    = "Rt5677I2c Service"
