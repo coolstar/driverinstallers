@@ -11,7 +11,7 @@ Outfile "${DRIVERNAME}.${VERSION}-installer.exe"
 ManifestSupportedOS "all"
 SpaceTexts "none"
 
-InstallDir "$TEMP\${DRIVERNAME}"
+InstallDir "$PROGRAMFILES64\${DRIVERNAME}"
 
 #Var dpinst
 
@@ -51,6 +51,7 @@ functionEnd
 Section "CoolStar Audio AutoSwitch"
   SetOutPath $INSTDIR
   ExecWait 'net.exe STOP "csaudioswitcher"'
+  ExecWait 'sc delete csaudioswitcher'
   File /r "utils"
   writeUninstaller "$INSTDIR\uninstall.exe"
   WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\csaudioswitcher" \
