@@ -13,14 +13,13 @@
 ; Left Ctrl + Backspace = Delete
 ;
 ; Left Ctrl + F1 = Browser Back
-; Left Ctrl + F2 = Browser Forward
-; Left Ctrl + F3 = Browser Refresh
+; Left Ctrl + F2 = Browser Refresh
 ;
-; Left Ctrl + F4 = Full Screen
-; Left Ctrl + F5 = Task View
+; Left Ctrl + F3 = Full Screen
+; Left Ctrl + F4 = Task View
 ;
-; Left Ctrl + F6 = Brightness Down
-; Left Ctrl + F7 = Brightness Up
+; Left Ctrl + F5 = Brightness Down
+; Left Ctrl + F6 = Brightness Up
 ;
 ; Left Ctrl + F8 = Mute
 ; Left Ctrl + F9 = Volume Down
@@ -367,51 +366,52 @@ FadeKBLBrightnessStep:
 	Return
 
 <^F2::
-	Send {LAlt down}{Right}{LAlt up}
-	Return
-
-<^F3::
 	Send {F5}
 	Return
 
 ; ----------
 
-<^F4::
+<^F3::
 	Send {F11}
 	Return
 
-<^+F4::
+<^+F3::
 	Send {LWin down}{P}{LWin Up}
 	Return
 
-<^F5::
+<^F4::
 	Send {LWin down}{Tab}{LWin up}
 	Return
 
-<^+F5::
+<^+F4::
 	Send {LWin down}{PrintScreen}{LWin up}
 	Return
 
 ; ----------
 
-; brightness down = Ctrl+F6
-<^F6::
+; brightness down = Ctrl+F5
+<^F5::
 	BS.SetBrightness(-10)
 	Return
 
-; brightness up = Ctrl+F7
-<^F7::
+; brightness up = Ctrl+F6
+<^F6::
 	BS.SetBrightness(10)
 	Return
 
-; keyboard brightness down = Ctrl + Alt + F6
-<^<!F6::
+; keyboard brightness down = Ctrl + Alt + F5
+<^<!F5::
 	KBL.BrightnessDec()
 	Return
 
-; keyboard brightness up = Ctrl + Alt + F7
-<^<!F7::
+; keyboard brightness up = Ctrl + Alt + F6
+<^<!F6::
 	KBL.BrightnessInc()
+	Return
+
+; play/pause = Ctrl + F7
+<^F7::
+	Send {Media_Play_Pause}
 	Return
 
 ; -----
