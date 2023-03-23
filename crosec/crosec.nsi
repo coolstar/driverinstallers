@@ -51,19 +51,19 @@ Section "Wilco (Dell 7410/5300/5400) EC"
   ExecWait '"$dpinst" /sw /f /path "$INSTDIR\drivers\wilco"'
 SectionEnd
 
-Section "Keyboard"
-  ExecWait '"$dpinst" /sw /f /path "$INSTDIR\drivers\keyboard"'
-  writeUninstaller "$INSTDIR\uninstall.exe"
-  WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\crosecservice" \
-                 "DisplayName" "Chrome EC Service"
-  WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\crosecservice" \
-                 "UninstallString" "$\"$INSTDIR\uninstall.exe$\""
-  WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\crosecservice" \
-                 "DisplayIcon" "$\"$INSTDIR\icon.ico$\""
-  SetShellVarContext all
-  Exec "$INSTDIR\crosecservice.exe"
-  createShortCut "$SMPROGRAMS\Startup\crosecservice.lnk" "$INSTDIR\crosecservice.exe" "" "$INSTDIR\icon.ico"
-SectionEnd
+#Section "Keyboard"
+#  ExecWait '"$dpinst" /sw /f /path "$INSTDIR\drivers\keyboard"'
+#  writeUninstaller "$INSTDIR\uninstall.exe"
+#  WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\crosecservice" \
+#                 "DisplayName" "Chrome EC Service"
+#  WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\crosecservice" \
+#                 "UninstallString" "$\"$INSTDIR\uninstall.exe$\""
+#  WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\crosecservice" \
+#                 "DisplayIcon" "$\"$INSTDIR\icon.ico$\""
+#  SetShellVarContext all
+#  Exec "$INSTDIR\crosecservice.exe"
+#  createShortCut "$SMPROGRAMS\Startup\crosecservice.lnk" "$INSTDIR\crosecservice.exe" "" "$INSTDIR\icon.ico"
+#SectionEnd
 
 #Section "Default Keyboard Presets"
 #  ${DisableX64FSRedirection}
@@ -81,16 +81,16 @@ SectionEnd
 #             #
 ###############
 
-function un.onInit
-  SetShellVarContext all
-  MessageBox MB_OKCANCEL "Are you sure you want to uninstall ${DRIVERNAME}?" IDOK next
-    Abort
-  next:
-functionEnd
+#function un.onInit
+#  SetShellVarContext all
+#  MessageBox MB_OKCANCEL "Are you sure you want to uninstall ${DRIVERNAME}?" IDOK next
+#    Abort
+#  next:
+#functionEnd
  
-section "uninstall"
-  ${nsProcess::KillProcess} "crosecservice.exe" $R4
-  delete "$SMPROGRAMS\Startup\chromebookremap.lnk"
-  rmDir /r $INSTDIR
-  DeleteRegKey HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\crosecservice"
-sectionEnd
+#section "uninstall"
+#  ${nsProcess::KillProcess} "crosecservice.exe" $R4
+#  delete "$SMPROGRAMS\Startup\chromebookremap.lnk"
+#  rmDir /r $INSTDIR
+#  DeleteRegKey HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\crosecservice"
+#sectionEnd
