@@ -65,11 +65,11 @@ Section "Keyboard"
   createShortCut "$SMPROGRAMS\Startup\crosecservice.lnk" "$INSTDIR\crosecservice.exe" "" "$INSTDIR\icon.ico"
 SectionEnd
 
-Section "Default Keyboard Presets"
-  ${DisableX64FSRedirection}
-  CopyFiles "$INSTDIR\drivers\croskbsettings-croskb3.bin" "C:\Windows\system32\drivers\croskbsettings.bin"
-  ExecWait "$INSTDIR\utils\croskbreload.exe"
-SectionEnd
+#Section "Default Keyboard Presets"
+#  ${DisableX64FSRedirection}
+#  CopyFiles "$INSTDIR\drivers\croskbsettings-croskb3.bin" "C:\Windows\system32\drivers\croskbsettings.bin"
+#  ExecWait "$INSTDIR\utils\croskbreload.exe"
+#SectionEnd
 
 Section
   RMDir /r $INSTDIR\drivers
