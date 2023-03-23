@@ -3,10 +3,10 @@
 ;Copyright (c) CoolStar.  All rights reserved.
 ;
 ;Module Name:
-;    coolstar.inf
+;    rt1015.inf
 ;
 ;Abstract:
-;    INF file for installing the RT5682 Jack Detect Driver 
+;    INF file for installing the Realtek ALC1015 I2S Amplifier Driver 
 ;
 ;
 ;--*/
@@ -16,8 +16,8 @@ Signature   = "$WINDOWS NT$"
 Class       = Media
 ClassGuid   = {4d36e96c-e325-11ce-bfc1-08002be10318}
 Provider    = CoolStar
-DriverVer = 03/22/2023,1.0.1.0
-CatalogFile = rt5682.cat
+DriverVer = 03/22/2023,1.0.0.0
+CatalogFile = rt1015.cat
 PnpLockdown=1
 
 [DestinationDirs]
@@ -29,10 +29,10 @@ DefaultDestDir = 12
 1 = %DiskId1%,,,""
 
 [SourceDisksFiles]
-rt5682.sys  = 1,,
+rt1015.sys  = 1,,
 
 ;*****************************************
-; rt5682  Install Section
+; rt1015  Install Section
 ;*****************************************
 
 [Manufacturer]
@@ -41,39 +41,31 @@ rt5682.sys  = 1,,
 ; Decorated model section take precedence over undecorated 
 ; ones on XP and later.
 [Standard.NTAMD64]
-%rt5682.DeviceDesc%=Rt5682_Device, ACPI\10EC5682
+%rt1015.DeviceDesc%=Rt1015_Device, ACPI\10EC1015
 
-[Rt5682_Device.NT]
+[Rt1015_Device.NT]
 CopyFiles=Drivers_Dir
 
-[Rt5682_Device.NT.HW]
-AddReg=Rt5682_AddReg
-
 [Drivers_Dir]
-rt5682.sys
-
-[Rt5682_AddReg]
-; Set to 1 to connect the first interrupt resource found, 0 to leave disconnected
-HKR,Settings,"ConnectInterrupt",0x00010001,0
-HKR,,"UpperFilters",0x00010000,"mshidkmdf"
+rt1015.sys
 
 ;-------------- Service installation
-[Rt5682_Device.NT.Services]
-AddService = rt5682,%SPSVCINST_ASSOCSERVICE%, Rt5682_Service_Inst
+[Rt1015_Device.NT.Services]
+AddService = rt1015,%SPSVCINST_ASSOCSERVICE%, Rt1015_Service_Inst
 
-; -------------- rt5682 driver install sections
-[Rt5682_Service_Inst]
-DisplayName    = %rt5682.SVCDESC%
+; -------------- rt1015 driver install sections
+[Rt1015_Service_Inst]
+DisplayName    = %rt1015.SVCDESC%
 ServiceType    = 1               ; SERVICE_KERNEL_DRIVER
 StartType      = 3               ; SERVICE_DEMAND_START 
 ErrorControl   = 1               ; SERVICE_ERROR_NORMAL
-ServiceBinary  = %12%\rt5682.sys
+ServiceBinary  = %12%\rt1015.sys
 LoadOrderGroup = Base
 
 [Strings]
 SPSVCINST_ASSOCSERVICE= 0x00000002
 StdMfg                 = "CoolStar"
-DiskId1                = "ALC5682 Installation Disk #1"
-rt5682.DeviceDesc = "Realtek ALC5682 I2S Audio"
-rt5682.SVCDESC    = "ALC5682 Service"
+DiskId1                = "Realtek 1015 Installation Disk #1"
+rt1015.DeviceDesc = "Realtek ALC1015 I2S Amplifier"
+rt1015.SVCDESC    = "Realtek 1015 Service"
 

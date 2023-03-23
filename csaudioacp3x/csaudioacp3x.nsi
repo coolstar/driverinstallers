@@ -3,7 +3,7 @@
 !include nsProcess.nsh
 
 !define DRIVERNAME "csaudioacp3x"
-!define VERSION "1.0"
+!define VERSION "1.0.1"
 
 Caption "${DRIVERNAME} installer"
 Name "${DRIVERNAME} ${VERSION}"
@@ -46,6 +46,10 @@ SectionEnd
 
 Section "Maxim 98357a Amplifier"
   ExecWait '"$dpinst" /sw /f /path "$INSTDIR\drivers\max98357a"'
+SectionEnd
+
+Section "Realtek ALC1015 Amplifier"
+  ExecWait '"$dpinst" /sw /f /path "$INSTDIR\drivers\rt1015"'
 SectionEnd
 
 Section "CoolStar Audio AutoSwitch"
