@@ -3,21 +3,21 @@
 ;Copyright (c) CoolStar.  All rights reserved.
 ;
 ;Module Name:
-;    crosecbus.inf
+;    crosectypec.inf
 ;
 ;Abstract:
-;    INF file for installing the CR50 I2C Driver
+;    INF file for installing the Chrome EC USB-C Driver
 ;
 ;
 ;--*/
 
 [Version]
 Signature   = "$WINDOWS NT$"
-Class       = System
-ClassGuid   = {4d36e97d-e325-11ce-bfc1-08002be10318}
+Class       = USB
+ClassGuid   = {36FC9E60-C465-11CF-8056-444553540000}
 Provider    = CoolStar
-DriverVer = 03/22/2023,2.0.0.0
-CatalogFile = crosecbus.cat
+DriverVer = 03/22/2023,1.0.0.0
+CatalogFile = crosectypec.cat
 PnpLockdown = 1
 
 [DestinationDirs]
@@ -29,49 +29,51 @@ DefaultDestDir = 12
 1 = %DiskId1%,,,""
 
 [SourceDisksFiles]
-crosecbus.sys  = 1,,
+crosectypec.sys  = 1,,
 
 ;*****************************************
-; CrosEcBus  Install Section
+; CrosEcTypeC  Install Section
 ;*****************************************
 
 [Manufacturer]
-%StdMfg%=Standard,NTamd64
+%StdMfg%=Standard,NTamd64.10.0...14393
 
 ; Decorated model section take precedence over undecorated 
 ; ones on XP and later.
-[Standard.NTamd64]
-%CrosEcBus.DeviceDesc%=CrosEcBus_Device, ACPI\GOOG0004
+[Standard.NTamd64.10.0...14393]
+%CrosEcPDNotify.DeviceDesc%=CrosEcTypeC_Device, ACPI\GOOG0003
+%CrosEcTypeC.DeviceDesc%=CrosEcTypeC_Device, ACPI\GOOG0014
 
-[CrosEcBus_Device.NT]
+[CrosEcTypeC_Device.NT]
 CopyFiles=Drivers_Dir
 
-[CrosEcBus_Device.NT.HW]
-AddReg=CrosEcBus_AddReg
+[CrosEcTypeC_Device.NT.HW]
+AddReg=CrosEcTypeC_AddReg
 
 [Drivers_Dir]
-crosecbus.sys
+crosectypec.sys
 
-[CrosEcBus_AddReg]
+[CrosEcTypeC_AddReg]
 ; Set to 1 to connect the first interrupt resource found, 0 to leave disconnected
 HKR,Settings,"ConnectInterrupt",0x00010001,0
 
 ;-------------- Service installation
-[CrosEcBus_Device.NT.Services]
-AddService = CrosEcBus,%SPSVCINST_ASSOCSERVICE%, CrosEcBus_Service_Inst
+[CrosEcTypeC_Device.NT.Services]
+AddService = CrosEcTypeC,%SPSVCINST_ASSOCSERVICE%, CrosEcTypeC_Service_Inst
 
-; -------------- CrosEcBus driver install sections
-[CrosEcBus_Service_Inst]
-DisplayName    = %CrosEcBus.SVCDESC%
+; -------------- CrosEcTypeC driver install sections
+[CrosEcTypeC_Service_Inst]
+DisplayName    = %CrosEcTypeC.SVCDESC%
 ServiceType    = 1               ; SERVICE_KERNEL_DRIVER
 StartType      = 3               ; SERVICE_DEMAND_START 
 ErrorControl   = 1               ; SERVICE_ERROR_NORMAL
-ServiceBinary  = %12%\crosecbus.sys
+ServiceBinary  = %12%\crosectypec.sys
 LoadOrderGroup = Base
 
 [Strings]
 SPSVCINST_ASSOCSERVICE= 0x00000002
 StdMfg                 = "CoolStar"
 DiskId1                = "Chrome EC Installation Disk #1"
-CrosEcBus.DeviceDesc = "Chromebook EC Bus"
-CrosEcBus.SVCDESC    = "Chrome EC Service"
+CrosEcPDNotify.DeviceDesc = "Chromebook USB-C PD Notification"
+CrosEcTypeC.DeviceDesc = "Chromebook EC USB-C"
+CrosEcTypeC.SVCDESC    = "Chrome EC Service"

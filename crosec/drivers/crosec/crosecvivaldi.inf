@@ -1,0 +1,76 @@
+;/*++
+;
+;Copyright (c) CoolStar.  All rights reserved.
+;
+;Module Name:
+;    crosecvivaldi.inf
+;
+;Abstract:
+;    INF file for installing the Cros Vivaldi driver
+;
+;
+;--*/
+
+[Version]
+Signature   = "$WINDOWS NT$"
+Class       = HIDClass
+ClassGuid   = {745a17a0-74d3-11d0-b6fe-00a0c90f57da}
+Provider    = CoolStar
+DriverVer = 03/22/2023,1.0.0.0
+CatalogFile = crosecvivaldi.cat
+PnpLockdown = 1
+
+[DestinationDirs]
+DefaultDestDir = 12
+
+; ================= Class section =====================
+
+[SourceDisksNames]
+1 = %DiskId1%,,,""
+
+[SourceDisksFiles]
+crosecvivaldi.sys  = 1,,
+
+;*****************************************
+; CrosEcVivaldi  Install Section
+;*****************************************
+
+[Manufacturer]
+%StdMfg%=Standard,NTamd64.10.0...14393
+
+; Decorated model section take precedence over undecorated 
+; ones on XP and later.
+[Standard.NTamd64.10.0...14393]
+%CrosEcVivaldi.DeviceDesc%=CrosEcVivaldi_Device, ACPI\GOOG0007
+
+[CrosEcVivaldi_Device.NT]
+CopyFiles=Drivers_Dir
+
+[CrosEcVivaldi_Device.NT.HW]
+AddReg=CrosEcVivaldi_AddReg
+
+[Drivers_Dir]
+crosecvivaldi.sys
+
+[CrosEcVivaldi_AddReg]
+HKR,,"UpperFilters",0x00010000,"mshidkmdf"
+
+;-------------- Service installation
+[CrosEcVivaldi_Device.NT.Services]
+AddService = CrosEcVivaldi,%SPSVCINST_ASSOCSERVICE%, CrosEcVivaldi_Service_Inst
+
+; -------------- CrosEcVivaldi driver install sections
+[CrosEcVivaldi_Service_Inst]
+DisplayName    = %CrosEcVivaldi.SVCDESC%
+ServiceType    = 1               ; SERVICE_KERNEL_DRIVER
+StartType      = 3               ; SERVICE_DEMAND_START 
+ErrorControl   = 1               ; SERVICE_ERROR_NORMAL
+ServiceBinary  = %12%\crosecvivaldi.sys
+LoadOrderGroup = Base
+
+[Strings]
+SPSVCINST_ASSOCSERVICE= 0x00000002
+StdMfg                 = "CoolStar"
+DiskId1                = "Chrome EC Vivaldi Installation Disk #1"
+CrosEcVivaldi.DeviceDesc = "Chromebook Keyboard Settings & Buttons"
+CrosEcVivaldi.SVCDESC    = "Chrome EC Vivaldi Service"

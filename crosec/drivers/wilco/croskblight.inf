@@ -16,7 +16,7 @@ Signature   = "$WINDOWS NT$"
 Class       = HIDClass
 ClassGuid   = {745a17a0-74d3-11d0-b6fe-00a0c90f57da}
 Provider    = CoolStar
-DriverVer = 03/22/2023,2.0.1.0
+DriverVer = 03/22/2023,1.0.0.0
 CatalogFile = croskblight.cat
 PnpLockdown=1
 
@@ -41,7 +41,7 @@ croskblight.sys  = 1,,
 ; Decorated model section take precedence over undecorated 
 ; ones on XP and later.
 [Standard.NTamd64]
-%CrosKBLight.DeviceDesc%=CrosKBLight_Device, ACPI\GOOG0002
+%CrosKBLight.DeviceDesc%=CrosKBLight_Device, ACPI\GOOG000C
 
 [CrosKBLight_Device.NT]
 CopyFiles=Drivers_Dir
@@ -74,6 +74,6 @@ LoadOrderGroup = Base
 SPSVCINST_ASSOCSERVICE= 0x00000002
 StdMfg                 = "CoolStar"
 DiskId1                = "CrosKBLight Installation Disk #1"
-CrosKBLight.DeviceDesc = "Chromebook Keyboard Backlight"
+CrosKBLight.DeviceDesc = "Chromebook Keyboard Backlight (Wilco)"
 CrosKBLight.SVCDESC    = "CrosKBLight Service"
 
