@@ -3,7 +3,7 @@
 !include nsProcess.nsh
 
 !define DRIVERNAME "crostouchscreen"
-!define VERSION "2.9.3"
+!define VERSION "2.9.4"
 
 Caption "${DRIVERNAME} installer"
 Name "${DRIVERNAME} ${VERSION}"
@@ -46,4 +46,8 @@ SectionEnd
 
 Section "Melfas Touchscreen"
   ExecWait '"$dpinst" /sw /path "$INSTDIR\Drivers\melfas"'
+SectionEnd
+
+Section "Raydium Touchscreen"
+  ExecWait '"$dpinst" /sw /path "$INSTDIR\Drivers\raydium"'
 SectionEnd

@@ -3,7 +3,7 @@
 !include nsProcess.nsh
 
 !define DRIVERNAME "crostouchpad"
-!define VERSION "4.1.3"
+!define VERSION "4.1.4"
 
 Caption "${DRIVERNAME} installer"
 Name "${DRIVERNAME} ${VERSION}"
@@ -55,4 +55,8 @@ SectionEnd
 
 Section "Synaptics I2C Touchpad"
   ExecWait '"$dpinst" /sw /f /path "$INSTDIR\drivers\synaptics"'
+SectionEnd
+
+Section "Pixelbook (Eve) Touchpad"
+  ExecWait '"$dpinst" /sw /f /path "$INSTDIR\drivers\eve"'
 SectionEnd

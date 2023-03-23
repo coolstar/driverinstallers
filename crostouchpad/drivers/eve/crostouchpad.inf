@@ -1,0 +1,79 @@
+;/*++
+;
+;Copyright (c) CoolStar.  All rights reserved.
+;
+;Module Name:
+;    coolstar.inf
+;
+;Abstract:
+;    INF file for installing the Pixelbook Touchpad Driver
+;
+;
+;--*/
+
+[Version]
+Signature   = "$WINDOWS NT$"
+Class       = HIDClass
+ClassGuid   = {745a17a0-74d3-11d0-b6fe-00a0c90f57da}
+Provider    = CoolStar
+DriverVer = 03/22/2023,4.1.4.0
+CatalogFile = crostouchpad.cat
+PnpLockdown = 1
+
+[DestinationDirs]
+DefaultDestDir = 12
+
+; ================= Class section =====================
+
+[SourceDisksNames]
+1 = %DiskId1%,,,""
+
+[SourceDisksFiles]
+crostouchpad.sys  = 1,,
+
+;*****************************************
+; CrosTouchpad  Install Section
+;*****************************************
+
+[Manufacturer]
+%StdMfg%=Standard,NTamd64
+
+; Decorated model section take precedence over undecorated 
+; ones on XP and later.
+[Standard.NTamd64]
+%CrosTouchpad.DeviceDesc%=CrosTouchpad_Device, ACPI\VEN_ACPI&DEV_0C50&SUBSYS_1AE0006B
+
+[CrosTouchpad_Device.NT]
+CopyFiles=Drivers_Dir
+
+[CrosTouchpad_Device.NT.HW]
+AddReg=CrosTouchpad_AddReg
+
+[Drivers_Dir]
+crostouchpad.sys
+
+[CrosTouchpad_AddReg]
+; Set to 1 to connect the first interrupt resource found, 0 to leave disconnected
+HKR,Settings,"ConnectInterrupt",0x00010001,0
+HKR,,"UpperFilters",0x00010000,"mshidkmdf"
+
+;-------------- Service installation
+[CrosTouchpad_Device.NT.Services]
+AddService = CrosTouchpad,%SPSVCINST_ASSOCSERVICE%, CrosTouchpad_Service_Inst
+
+; -------------- CrosTouchpad driver install sections
+[CrosTouchpad_Service_Inst]
+DisplayName    = %CrosTouchpad.SVCDESC%
+ServiceType    = 1               ; SERVICE_KERNEL_DRIVER
+StartType      = 3               ; SERVICE_DEMAND_START 
+ErrorControl   = 1               ; SERVICE_ERROR_NORMAL
+ServiceBinary  = %12%\crostouchpad.sys
+LoadOrderGroup = Base
+
+[Strings]
+SPSVCINST_ASSOCSERVICE= 0x00000002
+StdMfg                 = "CoolStar"
+DiskId1                = "CrosTouchpad Installation Disk #1"
+CrosTouchpad.DeviceDesc = "Google Pixelbook Touchpad"
+CrosTouchpad.SVCDESC    = "CrosTouchpad Service"
+
