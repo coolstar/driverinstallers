@@ -1,0 +1,77 @@
+;/*++
+;
+;Copyright (c) CoolStar.  All rights reserved.
+;
+;Module Name:
+;    cbtable.inf
+;
+;Abstract:
+;    INF file for installing the Coreboot Table Driver
+;
+;
+;--*/
+
+[Version]
+Signature   = "$WINDOWS NT$"
+Class       = System
+ClassGuid   = {4d36e97d-e325-11ce-bfc1-08002be10318}
+Provider    = CoolStar
+DriverVer = 03/22/2023,1.0.0.0
+CatalogFile = cbtable.cat
+PnpLockdown = 1
+
+[DestinationDirs]
+DefaultDestDir = 12
+
+; ================= Class section =====================
+
+[SourceDisksNames]
+1 = %DiskId1%,,,""
+
+[SourceDisksFiles]
+cbtable.sys  = 1,,
+
+;*****************************************
+; cbtable  Install Section
+;*****************************************
+
+[Manufacturer]
+%StdMfg%=Standard,NTamd64
+
+; Decorated model section take precedence over undecorated 
+; ones on XP and later.
+[Standard.NTamd64]
+%cbtable.DeviceDesc%=cbtable_Device, ACPI\BOOT0000
+
+[cbtable_Device.NT]
+CopyFiles=Drivers_Dir
+
+[cbtable_Device.NT.HW]
+AddReg=cbtable_AddReg
+
+[Drivers_Dir]
+cbtable.sys
+
+[cbtable_AddReg]
+; Set to 1 to connect the first interrupt resource found, 0 to leave disconnected
+HKR,Settings,"ConnectInterrupt",0x00010001,0
+
+;-------------- Service installation
+[cbtable_Device.NT.Services]
+AddService = cbtable,%SPSVCINST_ASSOCSERVICE%, cbtable_Service_Inst
+
+; -------------- cbtable driver install sections
+[cbtable_Service_Inst]
+DisplayName    = %cbtable.SVCDESC%
+ServiceType    = 1               ; SERVICE_KERNEL_DRIVER
+StartType      = 3               ; SERVICE_DEMAND_START 
+ErrorControl   = 1               ; SERVICE_ERROR_NORMAL
+ServiceBinary  = %12%\cbtable.sys
+LoadOrderGroup = Base
+
+[Strings]
+SPSVCINST_ASSOCSERVICE= 0x00000002
+StdMfg                 = "CoolStar"
+DiskId1                = "Coreboot Table Installation Disk #1"
+cbtable.DeviceDesc = "Coreboot Table"
+cbtable.SVCDESC    = "Coreboot Table Service"

@@ -1,0 +1,75 @@
+;/*++
+;
+;Copyright (c) CoolStar.  All rights reserved.
+;
+;Module Name:
+;    coolstar.inf
+;
+;Abstract:
+;    INF file for installing the CrosKBHIDRemapper MaxTouch Touch Screen Driver
+;
+;
+;--*/
+
+[Version]
+Signature   = "$WINDOWS NT$"
+Class       = HIDClass
+ClassGuid   = {745a17a0-74d3-11d0-b6fe-00a0c90f57da}
+Provider    = CoolStar
+DriverVer = 03/22/2023,4.0.0.0
+CatalogFile = croskbhidremapper.cat
+PnpLockdown = 1
+
+[DestinationDirs]
+DefaultDestDir = 12
+
+[SourceDisksNames]
+1 = %DiskId1%,,,""
+
+[SourceDisksFiles]
+croskbhidremapper.sys  = 1,,
+
+;*****************************************
+; CrosTouchScreen  Install Section
+;*****************************************
+
+[Manufacturer]
+%StdMfg%=Standard,NTamd64
+
+; Decorated model section take precedence over undecorated 
+; ones on XP and later.
+[Standard.NTamd64]
+%CrosKBHIDRemapper.DeviceDesc%=CrosKBHIDRemapper_Device, CROSKB\HID0000
+
+[CrosKBHIDRemapper_Device.NT]
+CopyFiles=Drivers_Dir
+
+[CrosKBHIDRemapper_Device.NT.HW]
+AddReg=CrosKBHIDRemapper_AddReg
+
+[Drivers_Dir]
+croskbhidremapper.sys
+
+[CrosKBHIDRemapper_AddReg]
+HKR,,"UpperFilters",0x00010000,"mshidkmdf"
+
+;-------------- Service installation
+[CrosKBHIDRemapper_Device.NT.Services]
+AddService = CrosKBHIDRemapper,%SPSVCINST_ASSOCSERVICE%, CrosKBHIDRemapper_Service_Inst
+
+; -------------- CrosTouchScreen driver install sections
+[CrosKBHIDRemapper_Service_Inst]
+DisplayName    = %CrosKBHIDRemapper.SVCDESC%
+ServiceType    = 1               ; SERVICE_KERNEL_DRIVER
+StartType      = 3               ; SERVICE_DEMAND_START 
+ErrorControl   = 1               ; SERVICE_ERROR_NORMAL
+ServiceBinary  = %12%\croskbhidremapper.sys
+LoadOrderGroup = Base
+
+[Strings]
+SPSVCINST_ASSOCSERVICE= 0x00000002
+StdMfg                 = "CoolStar"
+DiskId1                = "CrosKBHIDRemapper Installation Disk #1"
+CrosKBHIDRemapper.DeviceDesc = "Chromebook Keyboard HID Helper"
+CrosKBHIDRemapper.SVCDESC    = "CrosKBHIDRemapper Service"
+
