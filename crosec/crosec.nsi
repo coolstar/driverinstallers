@@ -3,7 +3,7 @@
 !include nsProcess.nsh
 
 !define DRIVERNAME "crosec"
-!define VERSION "2.0"
+!define VERSION "2.0.1"
 
 Caption "${DRIVERNAME} installer"
 Name "${DRIVERNAME} ${VERSION}"
@@ -32,6 +32,17 @@ function .onInit
 functionEnd
 
 Section
+  # Uninstall legacy remap
+  ${nsProcess::KillProcess} "ChromebookRemap.exe" $R4
+  ${nsProcess::KillProcess} "croskblightclient.exe" $R4
+    delete "$SMPROGRAMS\Startup\chromebookremap.lnk"
+  delete "$PROGRAMFILES64\chromebookremap\utilities\ChromebookRemap.exe"
+  delete "$PROGRAMFILES64\chromebookremap\utilities\croskblightclient.exe"
+  rmDir /r $PROGRAMFILES64\chromebookremap\utilities
+  delete $PROGRAMFILES64\chromebookremap\uninstall.exe
+  rmDir $PROGRAMFILES64\chromebookremap
+  DeleteRegKey HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\chromebookremap"
+
   SetOutPath $INSTDIR
   File /r "drivers"
   ${nsProcess::KillProcess} "crosecservice.exe" $R4
@@ -40,36 +51,34 @@ Section
 SectionEnd
 
 Section "Coreboot Table"
+  SectionIn RO
   ExecWait '"$dpinst" /sw /f /path "$INSTDIR\drivers\coreboot"'
 SectionEnd
 
 Section "Chrome EC Combo"
+  SectionIn RO
   ExecWait '"$dpinst" /sw /f /path "$INSTDIR\drivers\crosec"'
 SectionEnd
 
-Section "Wilco (Dell 7410/5300/5400) EC"
-  ExecWait '"$dpinst" /sw /f /path "$INSTDIR\drivers\wilco"'
+Section "Keyboard" KeyboardCommon
+  ExecWait '"$dpinst" /sw /f /path "$INSTDIR\drivers\keyboard"'
+  writeUninstaller "$INSTDIR\uninstall.exe"
+  WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\crosecservice" \
+                 "DisplayName" "Chrome EC Service"
+  WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\crosecservice" \
+                 "UninstallString" "$\"$INSTDIR\uninstall.exe$\""
+  WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\crosecservice" \
+                 "DisplayIcon" "$\"$INSTDIR\icon.ico$\""
+  SetShellVarContext all
+  Exec "$INSTDIR\crosecservice.exe"
+  createShortCut "$SMPROGRAMS\Startup\crosecservice.lnk" "$INSTDIR\crosecservice.exe" "" "$INSTDIR\icon.ico"
 SectionEnd
 
-#Section "Keyboard"
-#  ExecWait '"$dpinst" /sw /f /path "$INSTDIR\drivers\keyboard"'
-#  writeUninstaller "$INSTDIR\uninstall.exe"
-#  WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\crosecservice" \
-#                 "DisplayName" "Chrome EC Service"
-#  WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\crosecservice" \
-#                 "UninstallString" "$\"$INSTDIR\uninstall.exe$\""
-#  WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\crosecservice" \
-#                 "DisplayIcon" "$\"$INSTDIR\icon.ico$\""
-#  SetShellVarContext all
-#  Exec "$INSTDIR\crosecservice.exe"
-#  createShortCut "$SMPROGRAMS\Startup\crosecservice.lnk" "$INSTDIR\crosecservice.exe" "" "$INSTDIR\icon.ico"
-#SectionEnd
-
-#Section "Default Keyboard Presets"
-#  ${DisableX64FSRedirection}
-#  CopyFiles "$INSTDIR\drivers\croskbsettings-croskb3.bin" "C:\Windows\system32\drivers\croskbsettings.bin"
-#  ExecWait "$INSTDIR\utils\croskbreload.exe"
-#SectionEnd
+Section "Default Keyboard Presets (Chrome)" ChromePreset
+  ${DisableX64FSRedirection}
+  CopyFiles "$INSTDIR\drivers\croskbsettings-croskb3.bin" "C:\Windows\system32\drivers\croskbsettings.bin"
+  ExecWait "$INSTDIR\utils\croskbreload.exe"
+SectionEnd
 
 Section
   RMDir /r $INSTDIR\drivers
@@ -81,16 +90,17 @@ SectionEnd
 #             #
 ###############
 
-#function un.onInit
-#  SetShellVarContext all
-#  MessageBox MB_OKCANCEL "Are you sure you want to uninstall ${DRIVERNAME}?" IDOK next
-#    Abort
-#  next:
-#functionEnd
+function un.onInit
+  SetShellVarContext all
+  MessageBox MB_OKCANCEL "Are you sure you want to uninstall ${DRIVERNAME}?" IDOK next
+    Abort
+  next:
+functionEnd
  
-#section "uninstall"
-#  ${nsProcess::KillProcess} "crosecservice.exe" $R4
-#  delete "$SMPROGRAMS\Startup\chromebookremap.lnk"
-#  rmDir /r $INSTDIR
-#  DeleteRegKey HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\crosecservice"
-#sectionEnd
+section "uninstall"
+  ${nsProcess::KillProcess} "crosecservice.exe" $R4
+  delete "$SMPROGRAMS\Startup\chromebookremap.lnk"
+  delete "C:\Windows\system32\drivers\croskbsettings.bin"
+  rmDir /r $INSTDIR
+  DeleteRegKey HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\crosecservice"
+sectionEnd
