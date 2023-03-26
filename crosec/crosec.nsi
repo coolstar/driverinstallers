@@ -77,7 +77,7 @@ SectionEnd
 Section "Default Keyboard Presets (Chrome)" ChromePreset
   ${DisableX64FSRedirection}
   CopyFiles "$INSTDIR\drivers\croskbsettings-croskb3.bin" "C:\Windows\system32\drivers\croskbsettings.bin"
-  ExecWait "$INSTDIR\utils\croskbreload.exe"
+  ExecWait "$INSTDIR\croskbreload.exe"
 SectionEnd
 
 Section
