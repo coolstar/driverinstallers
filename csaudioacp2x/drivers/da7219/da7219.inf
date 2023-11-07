@@ -1,0 +1,83 @@
+;/*++
+;
+;Copyright (c) CoolStar.  All rights reserved.
+;
+;Module Name:
+;    da7219.inf
+;
+;Abstract:
+;    INF file for installing the Dialog Semiconductor 7219 Driver 
+;
+;
+;--*/
+
+[Version]
+Signature   = "$WINDOWS NT$"
+Class       = Media
+ClassGuid   = {4d36e96c-e325-11ce-bfc1-08002be10318}
+Provider    = CoolStar
+DriverVer = 11/07/2023,1.0.1.0
+CatalogFile = da7219.cat
+PnpLockdown=1
+
+[DestinationDirs]
+DefaultDestDir = 12
+
+; ================= Class section =====================
+
+[SourceDisksNames]
+1 = %DiskId1%,,,""
+
+[SourceDisksFiles]
+da7219.sys  = 1,,
+
+;*****************************************
+; da7219  Install Section
+;*****************************************
+
+[Manufacturer]
+%StdMfg%=Standard,NTAMD64
+
+; Decorated model section take precedence over undecorated 
+; ones on XP and later.
+[Standard.NTAMD64]
+%da7219.DeviceDesc%=Da7219_Device, ACPI\DLGS7219
+
+[Da7219_Device.NT]
+CopyFiles=Drivers_Dir
+
+[Da7219_Device.NT.HW]
+AddReg=Da7219_AddReg, Da7219_AddReg.Configuration.AddReg
+Include=pci.inf
+Needs=PciD3ColdSupported.HW
+
+[Drivers_Dir]
+da7219.sys
+
+[Da7219_AddReg]
+; Set to 1 to connect the first interrupt resource found, 0 to leave disconnected
+HKR,Settings,"ConnectInterrupt",0x00010001,0
+HKR,,"UpperFilters",0x00010000,"mshidkmdf"
+
+[Da7219_AddReg.Configuration.AddReg]
+HKR,,"EnhancedPowerManagementEnabled",0x00010001,1
+
+;-------------- Service installation
+[Da7219_Device.NT.Services]
+AddService = da7219,%SPSVCINST_ASSOCSERVICE%, Da7219_Service_Inst
+
+; -------------- da7219 driver install sections
+[Da7219_Service_Inst]
+DisplayName    = %da7219.SVCDESC%
+ServiceType    = 1               ; SERVICE_KERNEL_DRIVER
+StartType      = 3               ; SERVICE_DEMAND_START 
+ErrorControl   = 1               ; SERVICE_ERROR_NORMAL
+ServiceBinary  = %12%\da7219.sys
+LoadOrderGroup = Base
+
+[Strings]
+SPSVCINST_ASSOCSERVICE= 0x00000002
+StdMfg                 = "CoolStar"
+DiskId1                = "DA7219 Installation Disk #1"
+da7219.DeviceDesc = "Dialog Semiconductor 7219 Codec"
+da7219.SVCDESC    = "DA7219 Service"
