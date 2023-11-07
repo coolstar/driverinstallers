@@ -3,7 +3,7 @@
 !include nsProcess.nsh
 
 !define DRIVERNAME "csaudioacp3x"
-!define VERSION "1.0.2"
+!define VERSION "1.0.3"
 
 Caption "${DRIVERNAME} installer"
 Name "${DRIVERNAME} ${VERSION}"

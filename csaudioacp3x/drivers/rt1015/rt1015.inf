@@ -16,7 +16,7 @@ Signature   = "$WINDOWS NT$"
 Class       = Media
 ClassGuid   = {4d36e96c-e325-11ce-bfc1-08002be10318}
 Provider    = CoolStar
-DriverVer = 03/22/2023,1.0.0.0
+DriverVer = 10/09/2023,1.0.1.0
 CatalogFile = rt1015.cat
 PnpLockdown=1
 
@@ -46,6 +46,10 @@ rt1015.sys  = 1,,
 [Rt1015_Device.NT]
 CopyFiles=Drivers_Dir
 
+[Rt1015_Device.NT.HW]
+Include=pci.inf
+Needs=PciD3ColdSupported.HW
+
 [Drivers_Dir]
 rt1015.sys
 
@@ -68,4 +72,3 @@ StdMfg                 = "CoolStar"
 DiskId1                = "Realtek 1015 Installation Disk #1"
 rt1015.DeviceDesc = "Realtek ALC1015 I2S Amplifier"
 rt1015.SVCDESC    = "Realtek 1015 Service"
-
