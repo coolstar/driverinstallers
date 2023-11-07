@@ -3,7 +3,7 @@
 !include nsProcess.nsh
 
 !define DRIVERNAME "crosec"
-!define VERSION "2.0.2"
+!define VERSION "2.0.3"
 
 Caption "${DRIVERNAME} installer"
 Name "${DRIVERNAME} ${VERSION}"

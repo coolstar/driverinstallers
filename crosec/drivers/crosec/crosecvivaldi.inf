@@ -16,7 +16,7 @@ Signature   = "$WINDOWS NT$"
 Class       = HIDClass
 ClassGuid   = {745a17a0-74d3-11d0-b6fe-00a0c90f57da}
 Provider    = CoolStar
-DriverVer = 03/22/2023,1.0.0.0
+DriverVer = 11/06/2023,1.0.1.0
 CatalogFile = crosecvivaldi.cat
 PnpLockdown = 1
 
@@ -47,13 +47,16 @@ crosecvivaldi.sys  = 1,,
 CopyFiles=Drivers_Dir
 
 [CrosEcVivaldi_Device.NT.HW]
-AddReg=CrosEcVivaldi_AddReg
+AddReg=CrosEcVivaldi_AddReg, CrosEcVivaldi_AddReg.Configuration.AddReg
 
 [Drivers_Dir]
 crosecvivaldi.sys
 
 [CrosEcVivaldi_AddReg]
 HKR,,"UpperFilters",0x00010000,"mshidkmdf"
+
+[CrosEcVivaldi_AddReg.Configuration.AddReg]
+HKR,,"EnhancedPowerManagementEnabled",0x00010001,1
 
 ;-------------- Service installation
 [CrosEcVivaldi_Device.NT.Services]
