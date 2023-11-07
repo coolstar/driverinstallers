@@ -1,0 +1,79 @@
+;/*++
+;
+;Copyright (c) CoolStar.  All rights reserved.
+;
+;Module Name:
+;    gmbusi2c.inf
+;
+;Abstract:
+;    INF file for installing the GMBus I2C Driver
+;
+;
+;--*/
+
+[Version]
+Signature   = "$WINDOWS NT$"
+Class       = System
+ClassGuid   = {4d36e97d-e325-11ce-bfc1-08002be10318}
+Provider    = CoolStar
+DriverVer = 11/07/2023,1.0.0.0
+CatalogFile = gmbusi2c.cat
+PnpLockdown = 1
+
+[DestinationDirs]
+DefaultDestDir = 12
+
+; ================= Class section =====================
+
+[SourceDisksNames]
+1 = %DiskId1%,,,""
+
+[SourceDisksFiles]
+gmbusi2c.sys  = 1,,
+
+;*****************************************
+; GmBusI2C  Install Section
+;*****************************************
+
+[Manufacturer]
+%StdMfg%=Standard,NTamd64.10.0...14393
+
+; Decorated model section take precedence over undecorated 
+; ones on XP and later.
+[Standard.NTamd64.10.0...14393]
+%GmBusI2C.DeviceDescArb%=GmBusI2C_Device, ACPI\BOOT0001
+%GmBusI2C.DeviceDescLink%=GmBusI2C_Device, ACPI\BOOT0002
+
+[GmBusI2C_Device.NT]
+CopyFiles=Drivers_Dir
+
+[GmBusI2C_Device.NT.HW]
+AddReg=GmBusI2C_AddReg
+
+[Drivers_Dir]
+gmbusi2c.sys
+
+[GmBusI2C_AddReg]
+; Set to 1 to connect the first interrupt resource found, 0 to leave disconnected
+HKR,Settings,"ConnectInterrupt",0x00010001,0
+
+;-------------- Service installation
+[GmBusI2C_Device.NT.Services]
+AddService = GmBusI2C,%SPSVCINST_ASSOCSERVICE%, GmBusI2C_Service_Inst
+
+; -------------- GmBusI2C driver install sections
+[GmBusI2C_Service_Inst]
+DisplayName    = %GmBusI2C.SVCDESC%
+ServiceType    = 1               ; SERVICE_KERNEL_DRIVER
+StartType      = 3               ; SERVICE_DEMAND_START 
+ErrorControl   = 1               ; SERVICE_ERROR_NORMAL
+ServiceBinary  = %12%\gmbusi2c.sys
+LoadOrderGroup = Base
+
+[Strings]
+SPSVCINST_ASSOCSERVICE= 0x00000002
+StdMfg                 = "CoolStar"
+DiskId1                = "Intel IGD GMBus Installation Disk #1"
+GmBusI2C.DeviceDescArb = "Intel Graphics Bus I2C Arbitrator"
+GmBusI2C.DeviceDescLink = "Intel Graphics Bus I2C Link"
+GmBusI2C.SVCDESC    = "Intel GMBus Service"
