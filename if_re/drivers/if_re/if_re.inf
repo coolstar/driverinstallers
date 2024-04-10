@@ -1,0 +1,267 @@
+;/*++
+;
+;Copyright (c) CoolStar.  All rights reserved.
+;
+;Module Name:
+;    if_re.inf
+;
+;Abstract:
+;    INF file for installing the Realtek Family Controller Driver
+;
+;
+;--*/
+
+[Version]
+Signature   = "$WINDOWS NT$"
+Class       = Net
+ClassGuid   = {4d36e972-e325-11ce-bfc1-08002be10318}
+Provider    = CoolStar
+CatalogFile = if_re.cat
+PnpLockdown = 1
+DriverVer = 04/09/2024,1.0.2.0
+
+;*****************************************
+; IF_RE  Install Section
+;*****************************************
+
+[Manufacturer]
+%StdMfg%=Standard,NTamd64.10.0...16299
+
+; Decorated model section take precedence over undecorated 
+; ones on XP and later.
+[Standard.NTamd64.10.0...16299]
+%RTLGBE.DeviceDesc%=IF_RE.ndi, PCI\VEN_10EC&DEV_8169 ; RTL8169
+%RTLGBE.DeviceDesc%=IF_RE.ndi, PCI\VEN_10EC&DEV_8167 ; RTL8169 SC
+%RTLGBE.DeviceDesc%=IF_RE.ndi, PCI\VEN_10EC&DEV_8168 ; RTL8168B
+%RTLGBE.DeviceDesc%=IF_RE.ndi, PCI\VEN_10EC&DEV_8161 ; RTL8168 Series add-on
+%RTLGBE.DeviceDesc%=IF_RE.ndi, PCI\VEN_10EC&DEV_8162 ; RTL8168KB
+%RTLGBE.DeviceDesc%=IF_RE.ndi, PCI\VEN_10EC&DEV_8136 ; RTL8101E
+%RTLGBE.DeviceDesc%=IF_RE.ndi, PCI\VEN_1186&DEV_4300 ; DLINK (idk, from FreeBSD)
+%RTL25GBE.DeviceDesc%=IF_RE.ndi, PCI\VEN_10EC&DEV_8125 ; RTL8125
+%RNK25GBE.DeviceDesc%=IF_RE.ndi, PCI\VEN_10EC&DEV_3000 ; Killer E3000/E3100 (RTL8125)
+%RTL5GBE.DeviceDesc%=IF_RE.ndi, PCI\VEN_10EC&DEV_8126 ; RTL8126
+
+;
+; NDI: This section declares your network interface characteristics.
+;
+[IF_RE.ndi.NT]
+FeatureScore            = 0xFE
+
+CopyFiles               = IF_RE.CopyFiles
+
+Characteristics         = 0x04  ; NCF_PHYSICAL
+
+; TODO: Update with the type of bus (PCI, USB, or custom) your device uses.
+BusType                 = 5     ; PCIBus
+
+; TODO: Update these next 3 values based on your device's media type.
+*IfType                 = 6     ; IF_TYPE_ETHERNET_CSMACD
+*MediaType              = 0     ; NdisMedium802_3
+*PhysicalMediaType      = 14    ; NdisPhysicalMedium802_3
+
+; TODO: Set this to 0 if your device is not a physical device.
+*IfConnectorPresent     = 1     ; true
+
+; In most cases, you can keep these at their default values.
+*ConnectionType         = 1     ; NET_IF_CONNECTION_DEDICATED
+*DirectionType          = 0     ; NET_IF_DIRECTION_SENDRECEIVE
+*AccessType             = 2     ; NET_IF_ACCESS_BROADCAST
+*HardwareLoopback       = 0     ; false
+
+AddReg                  = ndi.reg
+
+; To make it easier to share common keywords across different devices, we have
+; a separate AddReg section for each Advanced Keyword.
+; TODO: Add or remove keywords depending on the features your NIC supports.
+AddReg                  = Speed.kw
+AddReg                  = NetworkAddress.kw
+AddReg                  = VlanID.kw
+AddReg                  = FlowControl.kw
+AddReg                  = OffloadChecksum.kw
+AddReg                  = PriorityVlanTag.kw
+AddReg                  = LSO.kw
+
+[ndi.reg]
+; TODO: Update these if your device is not Ethernet.
+; Note that "ndis5" simply means to bind to TCPIP; it is not a version number.
+HKR, Ndi\Interfaces,    UpperRange, 0, "ndis5"
+HKR, Ndi\Interfaces,    LowerRange, 0, "ethernet"
+HKR, Ndi,               Service,    0, %ServiceName%
+
+[IF_RE.ndi.NT.Wdf]
+KmdfService = %ServiceName%, wdf
+
+[wdf]
+KmdfLibraryVersion      = 1.23
+
+[IF_RE.ndi.NT.Services]
+AddService = %ServiceName%, 2, IF_RE.Service, Service.EventLog
+
+[IF_RE.Service]
+DisplayName             = %Service.DisplayName%
+ServiceType             = 1 ; SERVICE_KERNEL_DRIVER
+StartType               = 3 ; SERVICE_DEMAND_START
+ErrorControl            = 1 ; SERVICE_ERROR_NORMAL
+; TODO: Update the name of your binary.
+ServiceBinary           = %13%\if_re.sys
+
+[IF_RE.CopyFiles]
+if_re.sys
+
+[Service.EventLog]
+AddReg                  = Service.AddEventLog.reg
+
+[Service.AddEventLog.reg]
+HKR,,                   EventMessageFile, 0x00020000, "%%SystemRoot%%\System32\netevent.dll"
+HKR,,                   TypesSupported,   0x00010001, 7
+[DestinationDirs]
+IF_RE.CopyFiles   = 13
+
+[SourceDisksNames]
+1 = %DiskDescription%
+
+[SourceDisksFiles]
+if_re.sys         = 1
+
+;
+; Advanced Keywords
+;
+[Speed.kw]
+HKR,Ndi\params\*SpeedDuplex,                    ParamDesc,      0,  %SpeedDuplex%
+HKR,Ndi\params\*SpeedDuplex,                    default,        0,  "0"
+HKR,Ndi\params\*SpeedDuplex,                    type,           0,  "enum"
+HKR,Ndi\params\*SpeedDuplex\enum,               "0",            0,  %AutoDetect%
+HKR,Ndi\params\*SpeedDuplex\enum,               "1",            0,  %10Mb-Half-Duplex%
+HKR,Ndi\params\*SpeedDuplex\enum,               "2",            0,  %10Mb-Full-Duplex%
+HKR,Ndi\params\*SpeedDuplex\enum,               "3",            0,  %100Mb-Half-Duplex%
+HKR,Ndi\params\*SpeedDuplex\enum,               "4",            0,  %100Mb-Full-Duplex%
+HKR,Ndi\params\*SpeedDuplex\enum,               "5",            0,  %1000Mb-Half-Duplex%
+HKR,Ndi\params\*SpeedDuplex\enum,               "6",            0,  %1000Mb-Full-Duplex%
+
+[NetworkAddress.kw]
+HKR,Ndi\params\NetworkAddress,                  ParamDesc,      0,  %NetworkAddress%
+HKR,Ndi\params\NetworkAddress,                  type,           0,  "edit"
+HKR,Ndi\params\NetworkAddress,                  default,        0,  ""
+HKR,Ndi\params\NetworkAddress,                  LimitText,      0,  "12"
+HKR,Ndi\params\NetworkAddress,                  UpperCase,      0,  "1"
+HKR,Ndi\params\NetworkAddress,                  Optional,       0,  "1"
+
+[VlanID.kw]
+HKR, Ndi\params\VlanID,                          ParamDesc,      0, %VlanID%
+HKR, Ndi\params\VlanID,                          type,           0, "int"
+HKR, Ndi\params\VlanID,                          default,        0, "0"
+HKR, Ndi\params\VlanID,                          min,            0, "0"
+HKR, Ndi\params\VlanID,                          max,            0, "4094"
+
+[FlowControl.kw]
+HKR,Ndi\params\*FlowControl,                    ParamDesc,      0,  %FlowControl%
+HKR,Ndi\params\*FlowControl,                    default,        0,  "3"
+HKR,Ndi\params\*FlowControl,                    type,           0,  "enum"
+HKR,Ndi\params\*FlowControl\enum,               "0",            0,  %Disabled%
+HKR,Ndi\params\*FlowControl\enum,               "1",            0,  %TxEnabled%
+HKR,Ndi\params\*FlowControl\enum,               "2",            0,  %RxEnabled%
+HKR,Ndi\params\*FlowControl\enum,               "3",            0,  %RxTxEnabled%
+
+[OffloadChecksum.kw]
+HKR,Ndi\params\*IPChecksumOffloadIPv4,          ParamDesc,      0,  %IPChksumOffv4%
+HKR,Ndi\params\*IPChecksumOffloadIPv4,          default,        0,  "3"
+HKR,Ndi\params\*IPChecksumOffloadIPv4,          type,           0,  "enum"
+HKR,Ndi\params\*IPChecksumOffloadIPv4\enum,     "0",            0,  %Disabled%
+HKR,Ndi\params\*IPChecksumOffloadIPv4\enum,     "1",            0,  %TxEnabled%
+HKR,Ndi\params\*IPChecksumOffloadIPv4\enum,     "2",            0,  %RxEnabled%
+HKR,Ndi\params\*IPChecksumOffloadIPv4\enum,     "3",            0,  %RxTxEnabled%
+
+HKR,Ndi\params\*TCPChecksumOffloadIPv4,         ParamDesc,      0,  %TCPChksumOffv4%
+HKR,Ndi\params\*TCPChecksumOffloadIPv4,         default,        0,  "3"
+HKR,Ndi\params\*TCPChecksumOffloadIPv4,         type,           0,  "enum"
+HKR,Ndi\params\*TCPChecksumOffloadIPv4\enum,    "0",            0,  %Disabled%
+HKR,Ndi\params\*TCPChecksumOffloadIPv4\enum,    "1",            0,  %TxEnabled%
+HKR,Ndi\params\*TCPChecksumOffloadIPv4\enum,    "2",            0,  %RxEnabled%
+HKR,Ndi\params\*TCPChecksumOffloadIPv4\enum,    "3",            0,  %RxTxEnabled%
+
+HKR,Ndi\params\*UDPChecksumOffloadIPv4,         ParamDesc,      0,  %UDPChksumOffv4%
+HKR,Ndi\params\*UDPChecksumOffloadIPv4,         default,        0,  "3"
+HKR,Ndi\params\*UDPChecksumOffloadIPv4,         type,           0,  "enum"
+HKR,Ndi\params\*UDPChecksumOffloadIPv4\enum,    "0",            0,  %Disabled%
+HKR,Ndi\params\*UDPChecksumOffloadIPv4\enum,    "1",            0,  %TxEnabled%
+HKR,Ndi\params\*UDPChecksumOffloadIPv4\enum,    "2",            0,  %RxEnabled%
+HKR,Ndi\params\*UDPChecksumOffloadIPv4\enum,    "3",            0,  %RxTxEnabled%
+
+HKR,Ndi\params\*TCPChecksumOffloadIPv6,         ParamDesc,      0,  %TCPChksumOffv6%
+HKR,Ndi\params\*TCPChecksumOffloadIPv6,         default,        0,  "3"
+HKR,Ndi\params\*TCPChecksumOffloadIPv6,         type,           0,  "enum"
+HKR,Ndi\params\*TCPChecksumOffloadIPv6\enum,    "0",            0,  %Disabled%
+HKR,Ndi\params\*TCPChecksumOffloadIPv6\enum,    "1",            0,  %TxEnabled%
+HKR,Ndi\params\*TCPChecksumOffloadIPv6\enum,    "2",            0,  %RxEnabled%
+HKR,Ndi\params\*TCPChecksumOffloadIPv6\enum,    "3",            0,  %RxTxEnabled%
+
+HKR,Ndi\params\*UDPChecksumOffloadIPv6,         ParamDesc,      0,  %UDPChksumOffv6%
+HKR,Ndi\params\*UDPChecksumOffloadIPv6,         default,        0,  "3"
+HKR,Ndi\params\*UDPChecksumOffloadIPv6,         type,           0,  "enum"
+HKR,Ndi\params\*UDPChecksumOffloadIPv6\enum,    "0",            0,  %Disabled%
+HKR,Ndi\params\*UDPChecksumOffloadIPv6\enum,    "1",            0,  %TxEnabled%
+HKR,Ndi\params\*UDPChecksumOffloadIPv6\enum,    "2",            0,  %RxEnabled%
+HKR,Ndi\params\*UDPChecksumOffloadIPv6\enum,    "3",            0,  %RxTxEnabled%
+
+[PriorityVlanTag.kw]
+HKR,Ndi\Params\*PriorityVlanTag,                ParamDesc,      0,  %PriorityVLAN%
+HKR,Ndi\Params\*PriorityVlanTag,                Default,        0,  "3"
+HKR,Ndi\Params\*PriorityVlanTag,                Type,           0,  "enum"
+HKR,Ndi\Params\*PriorityVlanTag\enum,           "0",            0,  %PriorityVLANDisabled%
+HKR,Ndi\Params\*PriorityVlanTag\enum,           "1",            0,  %PriorityEnabled%
+HKR,Ndi\Params\*PriorityVlanTag\enum,           "2",            0,  %VLANEnabled%
+HKR,Ndi\Params\*PriorityVlanTag\enum,           "3",            0,  %PriorityVLANEnabled%
+
+[LSO.kw]
+HKR,Ndi\Params\*LsoV2Ipv4,                      ParamDesc,      0,  %LSOv2Ipv4%
+HKR,Ndi\Params\*LsoV2Ipv4,                      Type,           0,  "enum"
+HKR,Ndi\Params\*LsoV2Ipv4,                      Default,        0,  "1"
+HKR,Ndi\Params\*LsoV2Ipv4\enum,                 "0",            0,  %Disabled%
+HKR,Ndi\Params\*LsoV2Ipv4\enum,                 "1",            0,  %Enabled%
+
+HKR,Ndi\Params\*LsoV2Ipv6,                      ParamDesc,      0,  %LSOv2Ipv6%
+HKR,Ndi\Params\*LsoV2Ipv6,                      Type,           0,  "enum"
+HKR,Ndi\Params\*LsoV2Ipv6,                      Default,        0,  "1"
+HKR,Ndi\Params\*LsoV2Ipv6\enum,                 "0",            0,  %Disabled%
+HKR,Ndi\Params\*LsoV2Ipv6\enum,                 "1",            0,  %Enabled%
+
+[Strings]
+AutoDetect               = "Auto Negotiation"
+SpeedDuplex              = "Speed & Duplex"
+10Mb-Half-Duplex         = "10 Mbps Half Duplex"
+10Mb-Full-Duplex         = "10 Mbps Full Duplex"
+100Mb-Half-Duplex        = "100 Mbps Half Duplex"
+100Mb-Full-Duplex        = "100 Mbps Full Duplex"
+1000Mb-Half-Duplex       = "1.0 Gbps Half Duplex"
+1000Mb-Full-Duplex       = "1.0 Gbps Full Duplex"
+NetworkAddress           = "Network Address"
+VlanID                   = "VLAN ID"
+IPChksumOffv4            = "IPv4 Checksum Offload"
+TCPChksumOffv4           = "TCP Checksum Offload (IPv4)"
+UDPChksumOffv4           = "UDP Checksum Offload (IPv4)"
+TCPChksumOffv6           = "TCP Checksum Offload (IPv6)"
+UDPChksumOffv6           = "UDP Checksum Offload (IPv6)"
+Enabled                  = "Enabled"
+Disabled                 = "Disabled"
+TxEnabled                = "Tx Enabled"
+RxEnabled                = "Rx Enabled"
+RxTxEnabled              = "Rx & Tx Enabled"
+FlowControl              = "Flow Control"
+PriorityVLAN             = "Priority & VLAN"
+PriorityVLANDisabled     = "Priority & VLAN Disabled"
+PriorityVLANEnabled      = "Priority & VLAN Enabled"
+PriorityEnabled          = "Packet Priority Enabled"
+VLANEnabled              = "VLAN Enabled"
+
+LSOv2Ipv4                = "Large Send Offload v2 (IPv4)"
+LSOv2Ipv6                = "Large Send Offload v2 (IPv6)"
+
+SPSVCINST_ASSOCSERVICE= 0x00000002
+StdMfg                 = "Realtek"
+DiskDescription        = "Realtek Ethernet Controller Installation Disk #1"
+RTLGBE.DeviceDesc	   = "Realtek PCIe GbE Family Controller"
+RTL25GBE.DeviceDesc	   = "Realtek Gaming 2.5GbE Controller"
+RNK25GBE.DeviceDesc	   = "Killer E3000 / E3100 Controller"
+RTL5GBE.DeviceDesc	   = "Realtek PCIe 5GbE Controller"
+Service.DisplayName    = "Realtek Ethernet Service"
+ServiceName            = "IF_RE"
