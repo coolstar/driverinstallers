@@ -16,7 +16,7 @@ Signature   = "$WINDOWS NT$"
 Class       = USB
 ClassGuid   = {36FC9E60-C465-11CF-8056-444553540000}
 Provider    = CoolStar
-DriverVer = 03/22/2023,1.0.0.0
+DriverVer = 04/17/2024,1.0.1.0
 CatalogFile = crosectypec.cat
 PnpLockdown = 1
 

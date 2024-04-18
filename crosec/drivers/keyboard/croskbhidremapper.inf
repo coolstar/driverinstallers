@@ -16,7 +16,7 @@ Signature   = "$WINDOWS NT$"
 Class       = HIDClass
 ClassGuid   = {745a17a0-74d3-11d0-b6fe-00a0c90f57da}
 Provider    = CoolStar
-DriverVer = 03/22/2023,4.0.0.0
+DriverVer = 04/17/2024,4.0.1.0
 CatalogFile = croskbhidremapper.cat
 PnpLockdown = 1
 
@@ -45,13 +45,16 @@ croskbhidremapper.sys  = 1,,
 CopyFiles=Drivers_Dir
 
 [CrosKBHIDRemapper_Device.NT.HW]
-AddReg=CrosKBHIDRemapper_AddReg
+AddReg=CrosKBHIDRemapper_AddReg, CrosKBHIDRemapper_AddReg.Configuration.AddReg
 
 [Drivers_Dir]
 croskbhidremapper.sys
 
 [CrosKBHIDRemapper_AddReg]
 HKR,,"UpperFilters",0x00010000,"mshidkmdf"
+
+[CrosKBHIDRemapper_AddReg.Configuration.AddReg]
+HKR,,"EnhancedPowerManagementEnabled",0x00010001,1
 
 ;-------------- Service installation
 [CrosKBHIDRemapper_Device.NT.Services]
@@ -72,4 +75,3 @@ StdMfg                 = "CoolStar"
 DiskId1                = "CrosKBHIDRemapper Installation Disk #1"
 CrosKBHIDRemapper.DeviceDesc = "Chromebook Keyboard HID Helper"
 CrosKBHIDRemapper.SVCDESC    = "CrosKBHIDRemapper Service"
-

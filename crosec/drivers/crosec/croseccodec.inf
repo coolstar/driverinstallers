@@ -6,7 +6,7 @@
 ;    croseccodec.inf
 ;
 ;Abstract:
-;    INF file for installing the CR50 I2C Driver
+;    INF file for installing the Chrome EC Audio Codec Driver
 ;
 ;
 ;--*/
@@ -16,7 +16,7 @@ Signature   = "$WINDOWS NT$"
 Class       = Media
 ClassGuid   = {4d36e96c-e325-11ce-bfc1-08002be10318}
 Provider    = CoolStar
-DriverVer = 07/05/2022,1.0.0.0
+DriverVer = 04/17/2024,1.0.1.0
 CatalogFile = croseccodec.cat
 PnpLockdown = 1
 
