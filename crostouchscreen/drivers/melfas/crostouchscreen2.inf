@@ -16,7 +16,7 @@ Signature   = "$WINDOWS NT$"
 Class       = HIDClass
 ClassGuid   = {745a17a0-74d3-11d0-b6fe-00a0c90f57da}
 Provider    = CoolStar
-DriverVer = 04/17/2024,2.9.5.0
+DriverVer = 04/23/2024,2.9.5.0
 CatalogFile = crostouchscreen2.cat
 PnpLockdown=1
 
@@ -47,7 +47,9 @@ crostouchscreen2.sys  = 1,,
 CopyFiles=Drivers_Dir
 
 [CrosTouchScreen_Device.NT.HW]
-AddReg=CrosTouchScreen_AddReg
+AddReg=CrosTouchScreen_AddReg, CrosTouchScreen_AddReg.Configuration.AddReg
+Include=pci.inf
+Needs=PciD3ColdSupported.HW
 
 [Drivers_Dir]
 crostouchscreen2.sys
@@ -56,6 +58,9 @@ crostouchscreen2.sys
 ; Set to 1 to connect the first interrupt resource found, 0 to leave disconnected
 HKR,Settings,"ConnectInterrupt",0x00010001,0
 HKR,,"UpperFilters",0x00010000,"mshidkmdf"
+
+[CrosTouchScreen_AddReg.Configuration.AddReg]
+HKR,,"EnhancedPowerManagementEnabled",0x00010001,1
 
 ;-------------- Service installation
 [CrosTouchScreen_Device.NT.Services]
