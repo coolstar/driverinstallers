@@ -3,7 +3,7 @@
 !include nsProcess.nsh
 
 !define DRIVERNAME "crosec"
-!define VERSION "2.0.4"
+!define VERSION "2.0.5"
 
 Caption "${DRIVERNAME} installer"
 Name "${DRIVERNAME} ${VERSION}"
@@ -78,6 +78,13 @@ Section "Default Keyboard Presets (Chrome)" ChromePreset
   ${DisableX64FSRedirection}
   CopyFiles "$INSTDIR\drivers\croskbsettings-croskb3.bin" "C:\Windows\system32\drivers\croskbsettings.bin"
   ExecWait "$INSTDIR\croskbreload.exe"
+SectionEnd
+
+Section "Default RGB Keyboard Profiles" RBGDefaults
+  ${DisableX64FSRedirection}
+  CopyFiles "$INSTDIR\drivers\croskbrgb_generic_2.bin" "C:\Windows\system32\drivers\croskbrgb_generic_2.bin"
+  CopyFiles "$INSTDIR\drivers\croskbrgb_generic_3.bin" "C:\Windows\system32\drivers\croskbrgb_generic_3.bin"
+  CopyFiles "$INSTDIR\drivers\croskbrgb_generic_4.bin" "C:\Windows\system32\drivers\croskbrgb_generic_4.bin"
 SectionEnd
 
 Section

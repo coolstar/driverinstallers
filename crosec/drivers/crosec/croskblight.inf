@@ -16,7 +16,7 @@ Signature   = "$WINDOWS NT$"
 Class       = HIDClass
 ClassGuid   = {745a17a0-74d3-11d0-b6fe-00a0c90f57da}
 Provider    = CoolStar
-DriverVer = 03/22/2023,2.0.1.0
+DriverVer = 04/23/2024,2.0.1.0
 CatalogFile = croskblight.cat
 PnpLockdown=1
 
@@ -47,7 +47,9 @@ croskblight.sys  = 1,,
 CopyFiles=Drivers_Dir
 
 [CrosKBLight_Device.NT.HW]
-AddReg=CrosKBLight_AddReg
+AddReg=CrosKBLight_AddReg, CrosKBLight_AddReg.Configuration.AddReg
+Include=pci.inf
+Needs=PciD3ColdSupported.HW
 
 [Drivers_Dir]
 croskblight.sys
@@ -56,6 +58,9 @@ croskblight.sys
 ; Set to 1 to connect the first interrupt resource found, 0 to leave disconnected
 HKR,Settings,"ConnectInterrupt",0x00010001,0
 HKR,,"UpperFilters",0x00010000,"mshidkmdf"
+
+[CrosKBLight_AddReg.Configuration.AddReg]
+HKR,,"EnhancedPowerManagementEnabled",0x00010001,1
 
 ;-------------- Service installation
 [CrosKBLight_Device.NT.Services]
@@ -76,4 +81,3 @@ StdMfg                 = "CoolStar"
 DiskId1                = "CrosKBLight Installation Disk #1"
 CrosKBLight.DeviceDesc = "Chromebook Keyboard Backlight"
 CrosKBLight.SVCDESC    = "CrosKBLight Service"
-
