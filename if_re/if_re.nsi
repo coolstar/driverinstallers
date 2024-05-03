@@ -16,7 +16,7 @@ InstallDir "$TEMP\${DRIVERNAME}"
 Var dpinst
 
 PageEx components
-  ComponentText "Select which i2c controller you have.  Click install to start the installation." "" ""
+  ComponentText "Select which ethernet controller you have.  Click install to start the installation." "" ""
 PageExEnd
 
 Page instfiles
@@ -36,6 +36,6 @@ Section
   StrCpy $dpinst "$INSTDIR\drivers\dpinst.exe"
 SectionEnd
 
-Section "Intel "
+Section "Realtek GbE/2.5GbE/5GbE Family Controller"
   ExecWait '"$dpinst" /sw /path "$INSTDIR\Drivers\if_re"'
 SectionEnd
