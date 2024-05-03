@@ -1,0 +1,126 @@
+;/*++
+;
+;Copyright (c) CoolStar.  All rights reserved.
+;
+;Module Name:
+;    crosfingerprint.inf
+;
+;Abstract:
+;    INF file for installing the Chromebook Fingerprint Driver 
+;
+;
+;--*/
+
+[Version]
+Signature   = "$WINDOWS NT$"
+Class       = Biometric
+ClassGuid   = {53D29EF7-377C-4D14-864B-EB3A85769359}
+Provider    = CoolStar
+DriverVer = 05/03/2024,1.0.0.0
+CatalogFile = crosfingerprint.cat
+PnpLockdown=1
+
+; ================= Class section =====================
+
+[Manufacturer]
+%ManufacturerName%=Standard,NTamd64
+
+[Standard.NTamd64]
+%DeviceName%=CrosFp_Device, ACPI\CRFP0000; SPI fingerprint
+%DeviceName%=CrosFp_Device, ACPI\CRFP0001; UART fingerprint
+
+[SourceDisksFiles]
+crosfingerprint.dll=1
+CrosFingerprintAdapter.dll=1 ; Vendor engine adapter
+
+[SourceDisksNames]
+1 = %DiskName%
+
+; =================== UMDF Device ==================================
+
+[CrosFp_Device.NT]
+CopyFiles=UMDriverCopy, WinBioAdapterCopy
+
+[CrosFp_Device.NT.hw]
+AddReg=CrosFP_Device_AddReg
+AddReg=DriverPlugInAddReg, DatabaseAddReg
+
+[CrosFp_Device.NT.Services]
+AddService=WUDFRd,0x000001fa,WUDFRD_ServiceInstall
+
+[CrosFp_Device.NT.CoInstallers]
+AddReg=CoInstallers_AddReg
+
+[CrosFp_Device.NT.Wdf]
+UmdfService=crosfingerprint, crosfingerprint_Install
+UmdfServiceOrder=crosfingerprint
+UmdfHostProcessSharing=ProcessSharingDisabled
+
+[crosfingerprint_Install]
+UmdfLibraryVersion=2.15.0
+ServiceBinary=%12%\UMDF\crosfingerprint.dll
+
+; -------------- crosfingerprint driver install sections
+[WUDFRD_ServiceInstall]
+DisplayName = %WudfRdDisplayName%
+ServiceType = 1
+StartType = 3
+ErrorControl = 1
+ServiceBinary = %12%\WUDFRd.sys
+
+[CrosFP_Device_AddReg]
+HKR,,"DeviceCharacteristics",0x10001,0x0100     ; Use same security checks on relative opens
+HKR,,"Security",,"D:P(A;;GA;;;BA)(A;;GA;;;SY)"  ; Allow generic-all access to Built-in administrators and Local system
+HKR,,"Exclusive",0x10001,1
+HKR,,"SystemWakeEnabled",0x00010001,1
+HKR,,"DeviceIdleEnabled",0x00010001,1
+HKR,,"UserSetDeviceIdleEnabled",0x00010001,1
+HKR,,"DefaultIdleState",0x00010001,1
+HKR,,"DefaultIdleTimeout",0x00010001,5000
+
+[DriverPlugInAddReg]
+HKR,WinBio\Configurations,DefaultConfiguration,,"0"
+HKR,WinBio\Configurations\0,SensorMode,0x10001,2                                ; Basic - 1, Advanced - 2
+HKR,WinBio\Configurations\0,SystemSensor,0x10001,1                              ; UAC/Winlogon - 1
+HKR,WinBio\Configurations\0,SensorAdapterBinary,,"CrosFingerprintAdapter.DLL"		; Vendor Engine
+HKR,WinBio\Configurations\0,EngineAdapterBinary,,"CrosFingerprintAdapter.DLL"       ; Vendor engine
+HKR,WinBio\Configurations\0,StorageAdapterBinary,,"CrosFingerprintAdapter.DLL"    ; Windows built-in storage adapter - see StorageAdapter.dll for sample vendor adapter
+HKR,WinBio\Configurations\0,DatabaseId,,"B50D01D8-C2B1-11ED-A508-00155DDCFFEC"  ; Unique database GUID
+
+[DatabaseAddReg]
+HKLM,System\CurrentControlSet\Services\WbioSrvc\Databases\{B50D01D8-C2B1-11ED-A508-00155DDCFFEC},BiometricType,0x00010001,0x00000008
+HKLM,System\CurrentControlSet\Services\WbioSrvc\Databases\{B50D01D8-C2B1-11ED-A508-00155DDCFFEC},Attributes,0x00010001,0x00000001
+HKLM,System\CurrentControlSet\Services\WbioSrvc\Databases\{B50D01D8-C2B1-11ED-A508-00155DDCFFEC},Format,,"00000000-0000-0000-0000-000000000000"
+HKLM,System\CurrentControlSet\Services\WbioSrvc\Databases\{B50D01D8-C2B1-11ED-A508-00155DDCFFEC},InitialSize,0x00010001,0x00000020
+HKLM,System\CurrentControlSet\Services\WbioSrvc\Databases\{B50D01D8-C2B1-11ED-A508-00155DDCFFEC},AutoCreate,0x00010001,0x00000001
+HKLM,System\CurrentControlSet\Services\WbioSrvc\Databases\{B50D01D8-C2B1-11ED-A508-00155DDCFFEC},AutoName,0x00010001,0x00000001
+HKLM,System\CurrentControlSet\Services\WbioSrvc\Databases\{B50D01D8-C2B1-11ED-A508-00155DDCFFEC},FilePath,,""
+HKLM,System\CurrentControlSet\Services\WbioSrvc\Databases\{B50D01D8-C2B1-11ED-A508-00155DDCFFEC},ConnectionString,,""
+
+[CoInstallers_AddReg]
+HKR,,CoInstallers32,0x00010000,"WUDFCoinstaller.dll"
+
+[DestinationDirs]
+UMDriverCopy=12,UMDF ; copy to drivers\umdf
+WinBioAdapterCopy=11,WinBioPlugins ; copy to \Windows\System32\WinBioPlugins
+
+[UMDriverCopy]
+crosfingerprint.dll
+
+[WinBioAdapterCopy]
+CrosFingerprintAdapter.dll
+
+[SignatureAttributes]
+crosfingerprint.dll = SignatureAttributes.WindowsHello
+CrosFingerprintAdapter.dll = SignatureAttributes.WindowsHello
+
+[SignatureAttributes.WindowsHello]
+WindowsHello = true
+
+; =================== Generic ==================================
+
+[Strings]
+ManufacturerName                 = "CoolStar"
+DiskName                = "CrosFP Installation Disk #1"
+WudfRdDisplayName="Windows Driver Foundation - User-mode Driver Framework Reflector"
+DeviceName = "Chromebook Fingerprint Sensor"
