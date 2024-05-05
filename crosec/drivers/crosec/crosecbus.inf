@@ -16,7 +16,7 @@ Signature   = "$WINDOWS NT$"
 Class       = System
 ClassGuid   = {4d36e97d-e325-11ce-bfc1-08002be10318}
 Provider    = CoolStar
-DriverVer = 03/22/2023,2.0.0.0
+DriverVer = 05/03/2024,2.1.0.0
 CatalogFile = crosecbus.cat
 PnpLockdown = 1
 
