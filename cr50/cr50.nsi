@@ -2,8 +2,8 @@
 !include x64.nsh
 !include nsProcess.nsh
 
-!define DRIVERNAME "cr50i2c"
-!define VERSION "1.0"
+!define DRIVERNAME "cr50"
+!define VERSION "1.0.1"
 
 Caption "${DRIVERNAME} installer"
 Name "${DRIVERNAME} ${VERSION}"
@@ -36,6 +36,6 @@ Section
   StrCpy $dpinst "$INSTDIR\drivers\dpinst.exe"
 SectionEnd
 
-Section "CR50 (I2C) TPM 2.0"
-  ExecWait '"$dpinst" /sw /path "$INSTDIR\Drivers\cr50i2c"'
+Section "CR50 (I2C/SPI) TPM 2.0"
+  ExecWait '"$dpinst" /sw /path "$INSTDIR\Drivers\cr50"'
 SectionEnd

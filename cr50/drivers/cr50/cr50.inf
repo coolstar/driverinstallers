@@ -3,10 +3,10 @@
 ;Copyright (c) CoolStar.  All rights reserved.
 ;
 ;Module Name:
-;    cr50i2c.inf
+;    cr50.inf
 ;
 ;Abstract:
-;    INF file for installing the CR50 I2C Driver
+;    INF file for installing the CR50 I2C/SPI Driver
 ;
 ;
 ;--*/
@@ -16,8 +16,8 @@ Signature   = "$WINDOWS NT$"
 Class       = SecurityDevices
 ClassGuid   = {d94ee5d8-d189-4994-83d2-f68d7d41b0e6}
 Provider    = CoolStar
-DriverVer = 07/05/2022,1.0.0.0
-CatalogFile = cr50i2c.cat
+DriverVer = 05/03/2024,1.0.1.0
+CatalogFile = cr50.cat
 PnpLockdown = 1
 
 [DestinationDirs]
@@ -29,10 +29,10 @@ DefaultDestDir = 12
 1 = %DiskId1%,,,""
 
 [SourceDisksFiles]
-cr50i2c.sys  = 1,,
+cr50.sys  = 1,,
 
 ;*****************************************
-; Cr50I2C  Install Section
+; Cr50  Install Section
 ;*****************************************
 
 [Manufacturer]
@@ -41,37 +41,37 @@ cr50i2c.sys  = 1,,
 ; Decorated model section take precedence over undecorated 
 ; ones on XP and later.
 [Standard.NTamd64]
-%Cr50I2C.DeviceDesc%=Cr50I2C_Device, ACPI\GOOG0005
+%Cr50.DeviceDesc%=Cr50_Device, ACPI\GOOG0005
 
-[Cr50I2C_Device.NT]
+[Cr50_Device.NT]
 CopyFiles=Drivers_Dir
 
-[Cr50I2C_Device.NT.HW]
-AddReg=Cr50I2C_AddReg
+[Cr50_Device.NT.HW]
+AddReg=Cr50_AddReg
 
 [Drivers_Dir]
-cr50i2c.sys
+cr50.sys
 
-[Cr50I2C_AddReg]
+[Cr50_AddReg]
 ; Set to 1 to connect the first interrupt resource found, 0 to leave disconnected
 HKR,Settings,"ConnectInterrupt",0x00010001,0
 
 ;-------------- Service installation
-[Cr50I2C_Device.NT.Services]
-AddService = Cr50I2C,%SPSVCINST_ASSOCSERVICE%, Cr50I2C_Service_Inst
+[Cr50_Device.NT.Services]
+AddService = Cr50,%SPSVCINST_ASSOCSERVICE%, Cr50_Service_Inst
 
-; -------------- Cr50I2C driver install sections
-[Cr50I2C_Service_Inst]
-DisplayName    = %Cr50I2C.SVCDESC%
+; -------------- Cr50 driver install sections
+[Cr50_Service_Inst]
+DisplayName    = %Cr50.SVCDESC%
 ServiceType    = 1               ; SERVICE_KERNEL_DRIVER
 StartType      = 3               ; SERVICE_DEMAND_START 
 ErrorControl   = 1               ; SERVICE_ERROR_NORMAL
-ServiceBinary  = %12%\cr50i2c.sys
+ServiceBinary  = %12%\cr50.sys
 LoadOrderGroup = Base
 
 [Strings]
 SPSVCINST_ASSOCSERVICE= 0x00000002
 StdMfg                 = "CoolStar"
 DiskId1                = "Cr50 I2C Installation Disk #1"
-Cr50I2C.DeviceDesc = "Chromebook Cr50 (I2C) TPM 2.0"
-Cr50I2C.SVCDESC    = "Cr50 I2C Service"
+Cr50.DeviceDesc = "Chromebook Cr50 (I2C / SPI) TPM 2.0"
+Cr50.SVCDESC    = "Cr50 I2C Service"
