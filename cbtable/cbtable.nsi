@@ -16,7 +16,7 @@ InstallDir "$TEMP\${DRIVERNAME}"
 Var dpinst
 
 PageEx components
-  ComponentText "Select which tpm model you have.  Click install to start the installation." "" ""
+  ComponentText "Select which driver to install.  Click install to start the installation." "" ""
 PageExEnd
 
 Page instfiles
