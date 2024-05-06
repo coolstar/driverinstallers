@@ -18,7 +18,7 @@ ClassGuid   = {4d36e972-e325-11ce-bfc1-08002be10318}
 Provider    = CoolStar
 CatalogFile = if_re.cat
 PnpLockdown = 1
-DriverVer = 04/09/2024,1.0.2.0
+DriverVer = 05/05/2024,1.0.3.0
 
 ;*****************************************
 ; IF_RE  Install Section
@@ -75,11 +75,12 @@ AddReg                  = ndi.reg
 ; TODO: Add or remove keywords depending on the features your NIC supports.
 AddReg                  = Speed.kw
 AddReg                  = NetworkAddress.kw
-AddReg                  = VlanID.kw
+AddReg                  = RegVlanid.kw
 AddReg                  = FlowControl.kw
 AddReg                  = OffloadChecksum.kw
 AddReg                  = PriorityVlanTag.kw
 AddReg                  = LSO.kw
+AddReg                  = EEE.kw
 
 [ndi.reg]
 ; TODO: Update these if your device is not Ethernet.
@@ -146,12 +147,12 @@ HKR,Ndi\params\NetworkAddress,                  LimitText,      0,  "12"
 HKR,Ndi\params\NetworkAddress,                  UpperCase,      0,  "1"
 HKR,Ndi\params\NetworkAddress,                  Optional,       0,  "1"
 
-[VlanID.kw]
-HKR, Ndi\params\VlanID,                          ParamDesc,      0, %VlanID%
-HKR, Ndi\params\VlanID,                          type,           0, "int"
-HKR, Ndi\params\VlanID,                          default,        0, "0"
-HKR, Ndi\params\VlanID,                          min,            0, "0"
-HKR, Ndi\params\VlanID,                          max,            0, "4094"
+[RegVlanid.kw]
+HKR, Ndi\params\RegVlanid,                      ParamDesc,      0, %RegVlanid%
+HKR, Ndi\params\RegVlanid,                      type,           0, "int"
+HKR, Ndi\params\RegVlanid,                      default,        0, "0"
+HKR, Ndi\params\RegVlanid,                      min,            0, "0"
+HKR, Ndi\params\RegVlanid,                      max,            0, "4094"
 
 [FlowControl.kw]
 HKR,Ndi\params\*FlowControl,                    ParamDesc,      0,  %FlowControl%
@@ -225,6 +226,14 @@ HKR,Ndi\Params\*LsoV2Ipv6,                      Default,        0,  "1"
 HKR,Ndi\Params\*LsoV2Ipv6\enum,                 "0",            0,  %Disabled%
 HKR,Ndi\Params\*LsoV2Ipv6\enum,                 "1",            0,  %Enabled%
 
+[EEE.kw]
+HKR, Ndi\params\*EEE,							ParamDesc,		0,	%EEE%
+HKR, Ndi\params\*EEE,							Type,			0,	"enum"
+HKR, Ndi\params\*EEE,							Default,		0,	"1"
+HKR, Ndi\params\*EEE\enum,						"0",			0,	%Disabled%
+HKR, Ndi\params\*EEE\enum,						"1",			0,	%Enabled%
+HKR,,*EEE,0,"1"
+
 [Strings]
 AutoDetect               = "Auto Negotiation"
 SpeedDuplex              = "Speed & Duplex"
@@ -235,7 +244,7 @@ SpeedDuplex              = "Speed & Duplex"
 1000Mb-Half-Duplex       = "1.0 Gbps Half Duplex"
 1000Mb-Full-Duplex       = "1.0 Gbps Full Duplex"
 NetworkAddress           = "Network Address"
-VlanID                   = "VLAN ID"
+RegVlanid                = "VLAN ID"
 IPChksumOffv4            = "IPv4 Checksum Offload"
 TCPChksumOffv4           = "TCP Checksum Offload (IPv4)"
 UDPChksumOffv4           = "UDP Checksum Offload (IPv4)"
@@ -255,6 +264,7 @@ VLANEnabled              = "VLAN Enabled"
 
 LSOv2Ipv4                = "Large Send Offload v2 (IPv4)"
 LSOv2Ipv6                = "Large Send Offload v2 (IPv6)"
+EEE                      = "Energy-Efficient Ethernet"
 
 SPSVCINST_ASSOCSERVICE= 0x00000002
 StdMfg                 = "Realtek"
