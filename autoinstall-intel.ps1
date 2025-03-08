@@ -66,6 +66,10 @@ If (Get-PnpDevice -PresentOnly -InstanceID "ACPI\INTC1085\0" 2>$NULL){
 	$Chip = "ADL"
 	Echo "Detected Raptor Lake"
 }
+If (Get-PnpDevice -PresentOnly -InstanceID "ACPI\INTC1083\0" 2>$NULL){
+	$Chip = "MTL"
+	Echo "Detected Meteor Lake"
+}
 
 If ($Chip -Eq "Unknown"){
 	Echo "Failed to detect chipset. Make sure the GPIO controller is present in coreboot."
@@ -302,6 +306,57 @@ If ($Chip -Eq "ADL-N"){
 
 	Echo "Installing Intel GNA Driver"
 	pnputil /add-driver gna.inf /install
+}
+
+If ($Chip -Eq "MTL"){
+	Echo "Downloading Meteor Lake LPSS drivers"
+	Invoke-WebRequest "https://catalog.s.download.windowsupdate.com/c/msdownload/update/driver/drvs/2024/12/0b63ba37-0982-4361-a6fd-9438629f2054_4a44e9539d8cf713ffa1d4b0ac8c3dbdf11abc39.cab" -OutFile lpss.cab
+	Echo "Downloading Meteor Lake Chipset drivers"
+	Invoke-WebRequest "https://catalog.s.download.windowsupdate.com/c/msdownload/update/driver/drvs/2023/11/6a4d726f-64a1-499a-a427-d27bcb8a8903_703c8676ef7602573d0976dd5561dd35494756ac.cab" -OutFile chipset.cab
+	Echo "Downloading Meteor Lake IPF drivers"
+	Invoke-WebRequest "https://catalog.s.download.windowsupdate.com/c/msdownload/update/driver/drvs/2025/01/1c34acfa-08d9-450b-9dfb-524660f01961_dc37f1909014870cb13355f3abe11576caf7ad3c.cab" -OutFile ipf.cab
+	Echo "Downloading Intel NPU drivers"
+	Invoke-WebRequest "https://catalog.s.download.windowsupdate.com/d/msdownload/update/driver/drvs/2025/01/f842fdc5-d79e-40b6-bd9a-cf90f33adade_a0f94fb2cbe9ef8094208eb34b94aa337f1c7a72.cab" -OutFile npu.cab
+
+	Echo "Expanding Drivers"
+	Expand npu.cab -F:* . >$NULL
+	Expand lpss.cab -F:* . >$NULL
+	Expand chipset.cab -F:* . >$NULL
+	Expand ipf.cab -F:* . >$NULL
+	Expand gna.cab -F:* . >$NULL
+
+	Echo "Installing MTL System Driver"
+	pnputil /add-driver MeteorLakeSystem.inf /install
+
+	Echo "Installing MTL System (Northpeak) Driver"
+	pnputil /add-driver MeteorLakeSystemNorthpeak.inf /install
+
+	Echo "Installing GPIO Driver"
+	pnputil /add-driver iaLPSS2_GPIO2_MTL.inf /install
+
+	Echo "Installing I2C Driver"
+	pnputil /add-driver iaLPSS2_I2C_MTL.inf /install
+
+	Echo "Installing I3C Driver"
+	pnputil /add-driver iaLPSS2_I3C_MTL.inf /install
+
+	Echo "Installing SPI Driver"
+	pnputil /add-driver iaLPSS2_SPI_MTL.inf /install
+
+	Echo "Installing UART Driver"
+	pnputil /add-driver iaLPSS2_UART2_MTL.inf /install
+
+	Echo "Installing IPF ACPI Driver"
+	pnputil /add-driver ipf_acpi.inf /install
+
+	Echo "Installing IPF CPU Driver"
+	pnputil /add-driver ipf_cpu.inf /install
+
+	Echo "Installing IPF SMBus Driver"
+	pnputil /add-driver ipf_smbus.inf /install
+
+	Echo "Installing Intel NPU Driver"
+	pnputil /add-driver npu.inf /install
 }
 
 Echo "Done"
