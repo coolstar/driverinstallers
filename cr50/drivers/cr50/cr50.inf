@@ -16,7 +16,7 @@ Signature   = "$WINDOWS NT$"
 Class       = SecurityDevices
 ClassGuid   = {d94ee5d8-d189-4994-83d2-f68d7d41b0e6}
 Provider    = CoolStar
-DriverVer = 05/03/2024,1.0.1.0
+DriverVer = 09/30/2025,1.0.2.0
 CatalogFile = cr50.cat
 PnpLockdown = 1
 
