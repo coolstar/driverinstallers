@@ -3,7 +3,7 @@
 !include nsProcess.nsh
 
 !define DRIVERNAME "sklhdaudbus"
-!define VERSION "1.0.5"
+!define VERSION "1.0.6"
 
 Caption "${DRIVERNAME} installer"
 Name "${DRIVERNAME} ${VERSION}"
